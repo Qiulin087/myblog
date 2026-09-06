@@ -34,3 +34,8 @@ yarn.lock
 # WorkBuddy workspace artifacts (本地维护，不上传)
 .workbuddy/
 写文章指南.md
+
+# Local notes
+/博客修改指南.md
+/待填写信息.md
+/上传到GitHub指南.md
