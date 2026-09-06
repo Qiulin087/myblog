@@ -1,5 +1,5 @@
 ---
-title: 你好，世界
+title: 开始
 published: 2026-09-03
 description: 第一篇博客，顺便演示这个主题支持的 Markdown 写法。
 # image: ./cover.jpg   # 封面图：把图片放在本目录下，取消这行注释即可
