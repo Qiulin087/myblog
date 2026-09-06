@@ -30,3 +30,7 @@ yarn.lock
 .idea
 *.iml
 .vscode/
+
+# WorkBuddy workspace artifacts (本地维护，不上传)
+.workbuddy/
+写文章指南.md
