@@ -1,0 +1,58 @@
+name: Build Editor APK
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - "public/editor/**"
+      - "android/**"
+      - ".github/workflows/apk.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: apk-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Setup Java
+        uses: actions/setup-java@2dfa2011c5b2a0f1489bf9e433881c92c1631f88 # v4.3.0
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Setup Gradle
+        run: |
+          curl -sL -o /tmp/gradle.zip https://services.gradle.org/distributions/gradle-8.9-bin.zip
+          unzip -q /tmp/gradle.zip -d "$HOME/gradle-dist"
+          echo "$HOME/gradle-dist/gradle-8.9/bin" >> "$GITHUB_PATH"
+
+      - name: Copy editor assets into APK
+        run: |
+          mkdir -p android/app/src/main/assets
+          cp -r public/editor android/app/src/main/assets/editor
+
+      - name: Set version from run number
+        run: sed -i "s/versionCode 1/versionCode ${{ github.run_number }}/" android/app/build.gradle
+
+      - name: Build APK
+        run: gradle -p android assembleRelease --no-daemon
+
+      - name: Publish to release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cp android/app/build/outputs/apk/release/app-release.apk /tmp/blog-editor.apk
+          gh release view editor-apk --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1 \
+            || gh release create editor-apk --repo "$GITHUB_REPOSITORY" \
+                 --title "博客编辑器 APK" \
+                 --notes "手机端编辑器安装包，随仓库自动构建。签名稳定，新版本可直接覆盖安装。"
+          gh release upload editor-apk --repo "$GITHUB_REPOSITORY" /tmp/blog-editor.apk --clobber

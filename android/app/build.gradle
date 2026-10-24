@@ -1,0 +1,45 @@
+plugins {
+	id "com.android.application"
+}
+
+android {
+	namespace "com.qiulin.blogeditor"
+	compileSdk 34
+
+	defaultConfig {
+		applicationId "com.qiulin.blogeditor"
+		minSdk 24
+		targetSdk 34
+		versionCode 1
+		versionName "1.0"
+	}
+
+	// 密钥随仓库提交（个人自用 APK）：保证每次 CI 构建签名一致，覆盖安装不需卸载重装
+	signingConfigs {
+		release {
+			storeFile file("../keystore.jks")
+			storePassword "blogeditor-2026-key"
+			keyAlias "blogeditor"
+			keyPassword "blogeditor-2026-key"
+		}
+	}
+
+	buildTypes {
+		release {
+			signingConfig signingConfigs.release
+			minifyEnabled false
+		}
+		debug {
+			signingConfig signingConfigs.release
+		}
+	}
+
+	compileOptions {
+		sourceCompatibility JavaVersion.VERSION_17
+		targetCompatibility JavaVersion.VERSION_17
+	}
+}
+
+dependencies {
+	implementation "androidx.webkit:webkit:1.11.0"
+}

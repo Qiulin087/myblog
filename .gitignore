@@ -39,3 +39,9 @@ yarn.lock
 /博客修改指南.md
 /待填写信息.md
 /上传到GitHub指南.md
+
+# Android build outputs
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
