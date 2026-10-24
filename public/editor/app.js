@@ -66,9 +66,26 @@
 		return inner.split(",").map(function (s) { return unq(s); }).filter(Boolean);
 	}
 
+	/* 生成 YAML 字符串标量：
+	   空串以及会被 YAML 解析成 null/布尔/数字（含 2026 这类纯数字）的值必须加引号，
+	   否则内容集合的 z.string() 校验会失败；含英文冒号等不安全字符的值也一律加引号。 */
 	function qv(v) {
 		v = String(v == null ? "" : v);
-		return /^[\w\u4e00-\u9fa5 .,()（）·、！？!?：:：+-]*$/.test(v) && !/^[\s]/.test(v) && !/[\s]$/.test(v) ? v : JSON.stringify(v);
+		if (
+			v === "" ||
+			/^(null|~|true|false|yes|no|on|off|[-+]?(\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?|[-+]?\.(inf|Inf|INF)|\.(nan|NaN|NAN))$/i.test(v)
+		) {
+			return JSON.stringify(v);
+		}
+		if (
+			/^[\w\u4e00-\u9fa5 .,()（）·、！？!?：+-]*$/.test(v) &&
+			!/^\s/.test(v) &&
+			!/\s$/.test(v) &&
+			!/^-\s/.test(v)
+		) {
+			return v;
+		}
+		return JSON.stringify(v);
 	}
 
 	function mapLimit(items, limit, fn) {
@@ -140,7 +157,7 @@
 		(p.order || []).forEach(function (k) {
 			if (!MANAGED_SET.has(k)) lines.push(k + ": " + p.attrs[k]);
 		});
-		lines.push("tags: [" + p.tags.join(", ") + "]");
+		lines.push("tags: [" + p.tags.map(qv).join(", ") + "]");
 		lines.push("category: " + qv(p.category));
 		lines.push("draft: " + (p.draft ? "true" : "false"));
 		return "---\n" + lines.join("\n") + "\n---\n" + p.body;
