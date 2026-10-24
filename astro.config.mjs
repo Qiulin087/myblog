@@ -25,8 +25,13 @@ import { remarkReadingTime } from "./src/plugins/remark-reading-time.mjs";
 import { pluginCustomCopyButton } from "./src/plugins/expressive-code/custom-copy-button.js";
 
 // https://astro.build/config
+// 站点域名：Cloudflare Pages 构建时自动注入生产域名（CF_PAGES_URL，含未来绑定的自定义域名）；
+// 本地或其它平台构建时回退到 vercel 地址。换部署平台不需要改这里。
+const site =
+	process.env.CF_PAGES_URL || process.env.URL || "https://myblog-qiulin1.vercel.app/";
+
 export default defineConfig({
-	site: "https://myblog-qiulin1.vercel.app/", // 影响 RSS / sitemap / 站内链接的绝对地址；换了域名记得同步这里
+	site: site,
 	base: "/",
 	trailingSlash: "always",
 	integrations: [

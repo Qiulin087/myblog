@@ -8,7 +8,9 @@
 		repo: "myblog",
 		branch: "main",
 		postsDir: "src/content/posts/",
-		siteUrl: "https://myblog-qiulin1.vercel.app/",
+		/* 网页版部署在博客同域名下，直接取当前地址（换平台/绑域名自动跟随）；
+		   APK 内是 file://，取不到真实域名，回退到写死值（换域名时更新这里并重新构建 APK） */
+		siteUrl: location.protocol.indexOf("http") === 0 ? location.origin + "/" : "https://myblog-qiulin1.vercel.app/",
 	};
 
 	var API = "https://api.github.com";
