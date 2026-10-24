@@ -26,7 +26,7 @@ import { pluginCustomCopyButton } from "./src/plugins/expressive-code/custom-cop
 
 // https://astro.build/config
 export default defineConfig({
-	site: "https://fuwari.vercel.app/", // TODO 换成你的域名，影响 RSS / sitemap / 站内链接的绝对地址
+	site: "https://myblog-qiulin1.vercel.app/", // 影响 RSS / sitemap / 站内链接的绝对地址；换了域名记得同步这里
 	base: "/",
 	trailingSlash: "always",
 	integrations: [
