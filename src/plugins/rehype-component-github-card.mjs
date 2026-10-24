@@ -83,6 +83,7 @@ export function GithubCardComponent(properties, children) {
 			class: "card-github fetch-waiting no-styling",
 			href: `https://github.com/${repo}`,
 			target: "_blank",
+			rel: "noopener noreferrer",
 			repo,
 		},
 		[
