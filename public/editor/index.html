@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+	<meta name="robots" content="noindex, nofollow">
+	<meta name="theme-color" content="#6d4df0">
+	<title>博客编辑器</title>
+	<link rel="manifest" href="./manifest.webmanifest">
+	<link rel="icon" href="./icon-192.png">
+	<link rel="apple-touch-icon" href="./icon-192.png">
+	<link rel="stylesheet" href="./style.css">
+</head>
+<body>
+<div id="app">
+
+	<!-- ① 授权 -->
+	<section class="screen" id="screen-auth">
+		<div class="auth-wrap">
+			<div class="app-icon"><i data-lucide="feather"></i></div>
+			<h3>博客编辑器</h3>
+			<div class="domain" id="auth-domain"></div>
+			<div class="field">
+				<label for="f-token">GitHub Token</label>
+				<input class="input" id="f-token" type="password" placeholder="github_pat_····················" autocomplete="off" spellcheck="false">
+			</div>
+			<div class="error" id="auth-error" hidden></div>
+			<button class="btn-primary" id="btn-auth-save" type="button"><i data-lucide="shield-check"></i>验证并保存</button>
+			<div class="steps">
+				<div><b>1</b><span>手机浏览器打开 <code>github.com/settings/tokens</code> → Generate new token（选 Fine-grained）</span></div>
+				<div><b>2</b><span>Repository access 选 “Only select repositories” 勾选 <code>myblog</code>；Permissions 里把 <code>Contents</code> 设为 “Read and write”</span></div>
+				<div><b>3</b><span>有效期建议 90 天，生成后复制，粘贴到上面保存</span></div>
+			</div>
+			<div class="auth-foot"><i data-lucide="lock"></i>token 仅保存在本机浏览器，可随时在设置中清除</div>
+		</div>
+	</section>
+
+	<!-- ② 文章列表 -->
+	<section class="screen" id="screen-list" hidden>
+		<header class="topbar">
+			<h4>我的博客</h4>
+			<div class="tb-icons">
+				<a class="icon-btn" id="btn-visit" href="#" target="_blank" rel="noopener" aria-label="打开博客首页" data-tooltip="打开博客首页"><i data-lucide="globe"></i></a>
+				<button class="icon-btn" id="btn-refresh" type="button" aria-label="刷新" data-tooltip="刷新列表"><i data-lucide="refresh-cw"></i></button>
+				<button class="icon-btn" id="btn-settings" type="button" aria-label="设置" data-tooltip="设置 / 清除 token"><i data-lucide="settings"></i></button>
+			</div>
+		</header>
+		<div class="list" id="post-list"></div>
+		<button class="new-fab" id="btn-new" type="button"><i data-lucide="plus"></i>写新文章</button>
+	</section>
+
+	<!-- ③ 编辑 -->
+	<section class="screen" id="screen-edit" hidden>
+		<header class="ehead">
+			<button class="icon-btn" id="btn-back" type="button" aria-label="返回"><i data-lucide="arrow-left"></i></button>
+			<div class="e-title"><small id="edit-state">正在编辑</small><span id="edit-title">…</span></div>
+			<button class="icon-btn danger" id="btn-del" type="button" aria-label="删除文章" data-tooltip="删除这篇文章"><i data-lucide="trash-2"></i></button>
+			<button class="pill-btn primary" id="btn-save" type="button"><i data-lucide="cloud-upload"></i>保存</button>
+		</header>
+		<div class="ebody">
+			<div class="field"><label for="f-title">标题</label>
+				<input class="input" id="f-title" type="text" placeholder="文章标题"></div>
+			<div class="frow">
+				<div class="field"><label for="f-cat">分类</label>
+					<input class="input" id="f-cat" type="text" placeholder="随笔"></div>
+				<div class="field"><label for="f-tags">标签（逗号分隔）</label>
+					<input class="input" id="f-tags" type="text" placeholder="博客, 随笔"></div>
+			</div>
+			<div class="field"><label for="f-desc">摘要（首页卡片显示，可空）</label>
+				<input class="input" id="f-desc" type="text" placeholder=""></div>
+			<div class="frow2">
+				<span class="switch"><input type="checkbox" id="f-draft"><span class="track"></span><span class="knob"></span></span>
+				<label for="f-draft">草稿（仅自己可见）</label>
+				<span class="date"><i data-lucide="calendar"></i><input type="date" id="f-date"></span>
+			</div>
+			<div class="tabs" role="tablist" aria-label="编辑或预览">
+				<button type="button" class="on" id="tab-write" role="tab" aria-selected="true" aria-controls="pane-write"><i data-lucide="pen-line"></i>编辑</button>
+				<button type="button" id="tab-prev" role="tab" aria-selected="false" aria-controls="pane-prev"><i data-lucide="eye"></i>预览</button>
+			</div>
+			<div class="pane" id="pane-write" role="tabpanel" aria-labelledby="tab-write">
+				<textarea class="textarea" id="f-body" spellcheck="false" placeholder="用 Markdown 写正文…"></textarea>
+			</div>
+			<div class="pane" id="pane-prev" role="tabpanel" aria-labelledby="tab-prev" hidden>
+				<div class="preview md-body" id="preview"></div>
+			</div>
+			<div class="banner" id="draft-banner" hidden>
+				<span>已恢复上次未保存的本地草稿</span>
+				<button type="button" id="btn-discard-draft">放弃并还原</button>
+			</div>
+		</div>
+		<div class="ebar">
+			<button class="ghost-btn" id="btn-img" type="button"><i data-lucide="camera"></i>插入图片</button>
+			<input type="file" id="img-input" accept="image/*" multiple hidden>
+			<span class="save-hint" id="save-hint"><i data-lucide="pencil-line"></i>未保存</span>
+		</div>
+	</section>
+
+	<!-- 新建文章弹窗 -->
+	<div class="overlay" id="dlg-new" hidden>
+		<div class="dlg">
+			<h5>写新文章</h5>
+			<div class="field"><label for="f-new-title">标题</label>
+				<input class="input" id="f-new-title" type="text" placeholder="文章标题"></div>
+			<div class="field"><label for="f-new-slug">链接名（slug，小写英文/数字/短横线）</label>
+				<input class="input" id="f-new-slug" type="text" placeholder="my-new-post" spellcheck="false" autocomplete="off">
+				<small>将出现在文章链接 <code id="slug-demo">/posts/…/</code> 中，发布后不要随意修改</small></div>
+			<div class="error" id="new-error" hidden></div>
+			<div class="dlg-actions">
+				<button class="pill-btn" id="btn-new-cancel" type="button">取消</button>
+				<button class="pill-btn primary" id="btn-new-create" type="button"><i data-lucide="check"></i>开始写</button>
+			</div>
+		</div>
+	</div>
+
+	<div class="toast" id="toast" role="status" aria-live="polite"><i data-lucide="circle-check"></i><span id="toast-text"></span></div>
+</div>
+
+<script src="./marked.min.js"></script>
+<script src="./lucide.min.js"></script>
+<script src="./app.js"></script>
+</body>
+</html>

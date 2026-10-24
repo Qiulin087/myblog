@@ -1,0 +1,26 @@
+{
+	"name": "博客编辑器",
+	"short_name": "博客编辑器",
+	"description": "随时随地写文章、传图片，保存即发布到博客",
+	"lang": "zh-CN",
+	"start_url": "./index.html",
+	"scope": "./",
+	"display": "standalone",
+	"orientation": "portrait",
+	"background_color": "#17161e",
+	"theme_color": "#6d4df0",
+	"icons": [
+		{
+			"src": "./icon-192.png",
+			"sizes": "192x192",
+			"type": "image/png",
+			"purpose": "any maskable"
+		},
+		{
+			"src": "./icon-512.png",
+			"sizes": "512x512",
+			"type": "image/png",
+			"purpose": "any maskable"
+		}
+	]
+}
