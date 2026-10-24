@@ -50,9 +50,11 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          cp android/app/build/outputs/apk/release/app-release.apk /tmp/blog-editor.apk
+          cp android/app/build/outputs/apk/release/app-release.apk /tmp/myblog.apk
           gh release view editor-apk --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1 \
             || gh release create editor-apk --repo "$GITHUB_REPOSITORY" \
-                 --title "博客编辑器 APK" \
-                 --notes "手机端编辑器安装包，随仓库自动构建。签名稳定，新版本可直接覆盖安装。"
-          gh release upload editor-apk --repo "$GITHUB_REPOSITORY" /tmp/blog-editor.apk --clobber
+                 --title "myblog APK" \
+                 --notes "myblog 手机端编辑器安装包，随仓库自动构建。签名稳定，新版本可直接覆盖安装。"
+          gh release edit editor-apk --repo "$GITHUB_REPOSITORY" --title "myblog APK" || true
+          gh release delete-asset editor-apk blog-editor.apk --repo "$GITHUB_REPOSITORY" -y || true
+          gh release upload editor-apk --repo "$GITHUB_REPOSITORY" /tmp/myblog.apk --clobber

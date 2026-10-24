@@ -4,7 +4,7 @@
 	<uses-permission android:name="android.permission.INTERNET" />
 
 	<application
-		android:label="博客编辑器"
+		android:label="myblog"
 		android:icon="@drawable/ic_launcher"
 		android:theme="@android:style/Theme.Material.Light.NoActionBar"
 		android:allowBackup="true">
