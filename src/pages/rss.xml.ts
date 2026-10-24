@@ -22,7 +22,10 @@ export async function GET(context: APIContext) {
 	return rss({
 		title: siteConfig.title,
 		description: siteConfig.subtitle || "No description",
-		site: context.site ?? process.env.CF_PAGES_URL ?? "https://myblog-qiulin1.vercel.app",
+		site:
+			context.site ??
+			process.env.CF_PAGES_URL ??
+			"https://myblog-qiulin1.vercel.app",
 		items: blog.map((post) => {
 			const content =
 				typeof post.body === "string" ? post.body : String(post.body || "");

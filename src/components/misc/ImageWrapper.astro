@@ -15,7 +15,14 @@ interface Props {
 import { Image } from "astro:assets";
 import { url } from "../../utils/url-utils";
 
-const { id, src, alt, position = "center", basePath = "/", fit = "cover" } = Astro.props;
+const {
+	id,
+	src,
+	alt,
+	position = "center",
+	basePath = "/",
+	fit = "cover",
+} = Astro.props;
 const className = Astro.props.class;
 
 const isLocal = !(
@@ -46,7 +53,8 @@ if (isLocal) {
 	img = await file();
 }
 
-const bgBlurClass = "absolute inset-0 z-0 w-full h-full object-cover blur-2xl scale-110 hidden lg:block";
+const bgBlurClass =
+	"absolute inset-0 z-0 w-full h-full object-cover blur-2xl scale-110 hidden lg:block";
 const imageClass =
 	fit === "contain"
 		? "relative z-[2] w-full h-full object-cover lg:object-contain"
