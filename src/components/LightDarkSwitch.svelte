@@ -11,6 +11,9 @@ import {
 import { onMount } from "svelte";
 import type { LIGHT_DARK_MODE } from "@/types/config.ts";
 
+/* 声明 props 让 Astro 的类型检查接受 client:only 等指令属性 */
+let { ...rest }: Record<string, unknown> = $props();
+
 const seq: LIGHT_DARK_MODE[] = [LIGHT_MODE, DARK_MODE, AUTO_MODE];
 let mode: LIGHT_DARK_MODE = $state(AUTO_MODE);
 
