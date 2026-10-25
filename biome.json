@@ -10,9 +10,9 @@
 		"includes": [
 			"**",
 			"!**/src/**/*.css",
-			"!**/src/public/**/*",
 			"!**/dist/**/*",
-			"!**/node_modules/**/*"
+			"!**/node_modules/**/*",
+			"!**/public/**/*"
 		]
 	},
 	"formatter": {

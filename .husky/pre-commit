@@ -1,0 +1,2 @@
+# 提交前对暂存文件自动执行 biome 检查与安全修复，不通过则拦截提交
+pnpm exec biome check --write --staged --no-errors-on-unmatched

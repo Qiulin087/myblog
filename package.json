@@ -13,6 +13,7 @@
     "new-post": "node scripts/new-post.js",
     "format": "biome format --write ./src",
     "lint": "biome check --write ./src",
+    "prepare": "husky || exit 0",
     "preinstall": "npx only-allow pnpm"
   },
   "dependencies": {
@@ -64,11 +65,11 @@
   "devDependencies": {
     "@astrojs/ts-plugin": "^1.10.6",
     "@biomejs/biome": "2.2.5",
-    "@rollup/plugin-yaml": "^4.1.2",
     "@types/hast": "^3.0.4",
     "@types/markdown-it": "^14.1.2",
     "@types/mdast": "^4.0.4",
     "@types/sanitize-html": "^2.16.0",
+    "husky": "^9.1.7",
     "postcss-import": "^16.1.1",
     "postcss-nesting": "^13.0.2"
   },
