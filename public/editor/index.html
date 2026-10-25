@@ -78,6 +78,14 @@
 				<button type="button" id="tab-prev" role="tab" aria-selected="false" aria-controls="pane-prev"><i data-lucide="eye"></i>预览</button>
 			</div>
 			<div class="pane" id="pane-write" role="tabpanel" aria-labelledby="tab-write">
+				<div class="md-tools" id="md-tools" role="toolbar" aria-label="Markdown 格式">
+					<button type="button" data-tool="bold" aria-label="加粗" data-tooltip="加粗 **文字**"><i data-lucide="bold"></i></button>
+					<button type="button" data-tool="heading" aria-label="标题" data-tooltip="二级标题"><i data-lucide="heading-2"></i></button>
+					<button type="button" data-tool="quote" aria-label="引用" data-tooltip="引用"><i data-lucide="quote"></i></button>
+					<button type="button" data-tool="code" aria-label="代码" data-tooltip="行内代码"><i data-lucide="code"></i></button>
+					<button type="button" data-tool="list" aria-label="列表" data-tooltip="无序列表"><i data-lucide="list"></i></button>
+					<button type="button" data-tool="link" aria-label="链接" data-tooltip="插入链接"><i data-lucide="link"></i></button>
+				</div>
 				<textarea class="textarea" id="f-body" spellcheck="false" placeholder="用 Markdown 写正文…"></textarea>
 			</div>
 			<div class="pane" id="pane-prev" role="tabpanel" aria-labelledby="tab-prev" hidden>
