@@ -1,0 +1,21 @@
+---
+import ButtonLink from "@components/control/ButtonLink.astro";
+import MainGridLayout from "@layouts/MainGridLayout.astro";
+---
+
+<MainGridLayout title={"404"}>
+    <Fragment slot="head">
+        <meta name="robots" content="noindex, nofollow">
+    </Fragment>
+    <div class="card-base px-6 md:px-9 py-20 flex flex-col items-center text-center onload-animation">
+        <div class="font-bold text-[var(--primary)] text-8xl mb-6 transition">404</div>
+        <div class="text-black/75 dark:text-white/75 font-bold text-xl mb-3 transition">页面走丢了</div>
+        <div class="text-black/45 dark:text-white/45 text-sm mb-10 transition">
+            这个页面不存在，或者已经被移动到了别处。<br>
+            裹紧蓑衣，先回首页看看别的文章吧。
+        </div>
+        <div class="w-48">
+            <ButtonLink url="/">回到首页</ButtonLink>
+        </div>
+    </div>
+</MainGridLayout>
