@@ -1,0 +1,67 @@
+---
+import { formatDateToYYYYMMDD } from "@utils/date-utils";
+import type { JournalItem } from "@/lib/journal";
+
+interface Props {
+	item: Extract<JournalItem, { type: "life" }>;
+}
+const { item } = Astro.props;
+---
+
+<article class="life">
+    <p class="meta">
+        <time datetime={item.date.toISOString()}>{formatDateToYYYYMMDD(item.date)}</time>
+        <span class="type">生活记录</span>
+    </p>
+    {item.text && <p class="text">{item.text}</p>}
+    {
+        item.photos.length > 0 && (
+            <div class="life-photos">
+                {item.photos.map((src) => (
+                    <img src={src} alt="" loading="lazy" />
+                ))}
+            </div>
+        )
+    }
+</article>
+
+<style>
+    .meta {
+        display: flex;
+        align-items: baseline;
+        gap: 0.75rem;
+        margin: 0 0 0.375rem;
+        font-size: 0.8125rem;
+        color: var(--sp-sub);
+        font-variant-numeric: tabular-nums;
+    }
+
+    .type {
+        color: var(--sp-accent-strong);
+        font-size: 0.75rem;
+    }
+
+    .text {
+        margin: 0;
+        font-size: 0.9375rem;
+        line-height: 1.9;
+        color: var(--sp-ink);
+        white-space: pre-line;
+    }
+
+    .life-photos {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-start;
+        gap: 0.625rem;
+        margin-top: 0.75rem;
+    }
+
+    .life-photos img {
+        height: clamp(8.75rem, 26vw, 13.75rem);
+        width: auto;
+        border-radius: 10px;
+        display: block;
+        cursor: zoom-in;
+    }
+</style>

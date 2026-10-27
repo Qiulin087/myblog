@@ -1,0 +1,73 @@
+---
+import JournalFeed from "@components/journal/JournalFeed.astro";
+import SoftLayout from "@layouts/SoftLayout.astro";
+import { url } from "@utils/url-utils";
+import { getJournalItems } from "@/lib/journal";
+
+const items = await getJournalItems();
+---
+
+<SoftLayout title="记录" description="秋林的随笔、学习理解与生活记录，按时间排列。">
+    <div class="page">
+        <header class="page-head">
+            <p class="back">
+                <a href={url("/")}>← 返回首页</a>
+            </p>
+            <h1>记录</h1>
+            <p class="sub">随笔、学习理解与生活记录，按时间倒序排列。</p>
+        </header>
+
+        {items.length === 0 ? (
+            <p class="empty">还没有任何记录，第一篇正在路上。</p>
+        ) : (
+            <JournalFeed items={items} />
+        )}
+    </div>
+</SoftLayout>
+
+<style>
+    .page {
+        width: 100%;
+        max-width: 46rem;
+        margin: 0 auto;
+        padding: 1.5rem 0 4rem;
+    }
+
+    .back {
+        margin: 0 0 2.5rem;
+        font-size: 0.8125rem;
+    }
+
+    .back a {
+        color: var(--sp-sub);
+        text-decoration: none;
+        transition: color 0.2s ease;
+    }
+
+    .back a:hover,
+    .back a:focus-visible {
+        color: var(--sp-accent-strong);
+    }
+
+    h1 {
+        margin: 0;
+        font-size: 1.75rem;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+        color: var(--sp-ink);
+    }
+
+    .sub {
+        margin: 0.75rem 0 0;
+        font-size: 0.9375rem;
+        line-height: 1.8;
+        color: var(--sp-sub);
+    }
+
+    .empty {
+        margin: 5rem 0;
+        text-align: center;
+        color: var(--sp-sub);
+        font-size: 0.9375rem;
+    }
+</style>

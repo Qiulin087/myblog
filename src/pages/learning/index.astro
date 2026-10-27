@@ -1,0 +1,137 @@
+---
+import SoftLayout from "@layouts/SoftLayout.astro";
+import { formatDateToYYYYMMDD } from "@utils/date-utils";
+import { url } from "@utils/url-utils";
+import { getLearningEntries } from "@/lib/journal";
+
+const entries = await getLearningEntries();
+---
+
+<SoftLayout title="学习理解" description="秋林的学习感悟、思考过程和认知变化。">
+    <div class="page">
+        <header class="page-head">
+            <p class="back">
+                <a href={url("/")}>← 返回首页</a>
+            </p>
+            <h1>学习理解</h1>
+            <p class="sub">一些正在慢慢想明白的事。</p>
+        </header>
+
+        {
+            entries.length === 0 ? (
+                <p class="empty">还没有写下的思考，第一篇正在酝酿。</p>
+            ) : (
+                <div class="list">
+                    {entries.map((entry) => (
+                        <article class="row">
+                            <p class="meta">
+                                <time datetime={entry.data.published.toISOString()}>
+                                    {formatDateToYYYYMMDD(entry.data.published)}
+                                </time>
+                            </p>
+                            <h2 class="title">
+                                <a href={url(`/learning/${entry.slug}/`)}>{entry.data.title}</a>
+                            </h2>
+                            {entry.data.description && (
+                                <p class="desc">{entry.data.description}</p>
+                            )}
+                        </article>
+                    ))}
+                </div>
+            )
+        }
+    </div>
+</SoftLayout>
+
+<style>
+    .page {
+        width: 100%;
+        max-width: 46rem;
+        margin: 0 auto;
+        padding: 1.5rem 0 4rem;
+    }
+
+    .back {
+        margin: 0 0 2.5rem;
+        font-size: 0.8125rem;
+    }
+
+    .back a {
+        color: var(--sp-sub);
+        text-decoration: none;
+        transition: color 0.2s ease;
+    }
+
+    .back a:hover,
+    .back a:focus-visible {
+        color: var(--sp-accent-strong);
+    }
+
+    h1 {
+        margin: 0;
+        font-size: 1.75rem;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+        color: var(--sp-ink);
+    }
+
+    .sub {
+        margin: 0.75rem 0 0;
+        font-size: 0.9375rem;
+        line-height: 1.8;
+        color: var(--sp-sub);
+    }
+
+    .list {
+        margin-top: 2.5rem;
+    }
+
+    .row {
+        padding: 1.375rem 0 1.5rem;
+        border-top: 1px solid var(--sp-line);
+    }
+
+    .list .row:first-child {
+        border-top: none;
+        padding-top: 0.5rem;
+    }
+
+    .meta {
+        margin: 0 0 0.375rem;
+        font-size: 0.8125rem;
+        color: var(--sp-sub);
+        font-variant-numeric: tabular-nums;
+    }
+
+    .title {
+        margin: 0;
+        font-size: 1.125rem;
+        font-weight: 500;
+        line-height: 1.55;
+    }
+
+    .title a {
+        color: var(--sp-ink);
+        text-decoration: none;
+        transition: color 0.2s ease;
+    }
+
+    .title a:hover,
+    .title a:focus-visible {
+        color: var(--sp-accent-strong);
+    }
+
+    .desc {
+        margin: 0.375rem 0 0;
+        font-size: 0.875rem;
+        line-height: 1.8;
+        color: var(--sp-sub);
+    }
+
+    .empty {
+        margin: 5rem 0;
+        text-align: center;
+        color: var(--sp-sub);
+        font-size: 0.9375rem;
+    }
+</style>

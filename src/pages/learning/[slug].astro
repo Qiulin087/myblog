@@ -1,0 +1,177 @@
+---
+import { type CollectionEntry, getCollection } from "astro:content";
+import Markdown from "@components/misc/Markdown.astro";
+import SoftLayout from "@layouts/SoftLayout.astro";
+import { formatDateToYYYYMMDD } from "@utils/date-utils";
+import { url } from "@utils/url-utils";
+
+type LearningEntry = CollectionEntry<"learning">;
+
+export async function getStaticPaths() {
+	const all = await getCollection(
+		"learning",
+		({ data }) => !(import.meta.env.PROD && data.draft),
+	);
+	const sorted = all.sort(
+		(a, b) => b.data.published.getTime() - a.data.published.getTime(),
+	);
+	return sorted.map((entry, i) => ({
+		params: { slug: entry.slug },
+		props: {
+			entry,
+			older: i < sorted.length - 1 ? sorted[i + 1] : undefined,
+			newer: i > 0 ? sorted[i - 1] : undefined,
+		},
+	}));
+}
+
+interface Props {
+	entry: LearningEntry;
+	older?: LearningEntry;
+	newer?: LearningEntry;
+}
+
+const { entry, older, newer } = Astro.props;
+const { Content } = await entry.render();
+---
+
+<SoftLayout title={entry.data.title} description={entry.data.description}>
+    <div class="page">
+        <p class="back">
+            <a href={url("/learning/")}>← 返回学习理解</a>
+        </p>
+
+        <header class="head">
+            <h1>{entry.data.title}</h1>
+            <p class="meta">
+                <time datetime={entry.data.published.toISOString()}>
+                    {formatDateToYYYYMMDD(entry.data.published)}
+                </time>
+                {
+                    entry.data.updated && (
+                        <span>
+                            · 更新于 {formatDateToYYYYMMDD(entry.data.updated)}
+                        </span>
+                    )
+                }
+            </p>
+        </header>
+
+        <Markdown class="learning-md">
+            <Content />
+        </Markdown>
+
+        {
+            (older || newer) && (
+                <nav class="neighbors" aria-label="相邻文章">
+                    {older && (
+                        <a class="neighbor prev" href={url(`/learning/${older.slug}/`)}>
+                            <span class="dir">← 上一篇</span>
+                            <span class="n-title">{older.data.title}</span>
+                        </a>
+                    )}
+                    {newer && (
+                        <a class="neighbor next" href={url(`/learning/${newer.slug}/`)}>
+                            <span class="dir">下一篇 →</span>
+                            <span class="n-title">{newer.data.title}</span>
+                        </a>
+                    )}
+                </nav>
+            )
+        }
+    </div>
+</SoftLayout>
+
+<style>
+    .page {
+        width: 100%;
+        max-width: 46rem;
+        margin: 0 auto;
+        padding: 1.5rem 0 4rem;
+    }
+
+    .back {
+        margin: 0 0 3rem;
+        font-size: 0.8125rem;
+    }
+
+    .back a {
+        color: var(--sp-sub);
+        text-decoration: none;
+        transition: color 0.2s ease;
+    }
+
+    .back a:hover,
+    .back a:focus-visible {
+        color: var(--sp-accent-strong);
+    }
+
+    .head h1 {
+        margin: 0;
+        font-size: clamp(1.5rem, 4vw, 2rem);
+        font-weight: 600;
+        line-height: 1.4;
+        letter-spacing: -0.01em;
+        color: var(--sp-ink);
+    }
+
+    .meta {
+        margin: 1rem 0 0;
+        font-size: 0.8125rem;
+        color: var(--sp-sub);
+        font-variant-numeric: tabular-nums;
+    }
+
+    .learning-md {
+        margin-top: 2.75rem;
+        font-size: 1rem;
+        line-height: 2;
+        color: var(--sp-ink);
+    }
+
+    .neighbors {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        margin-top: 3.5rem;
+        padding-top: 1.75rem;
+        border-top: 1px solid var(--sp-line);
+    }
+
+    .neighbor {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+        padding: 0.875rem 1rem;
+        border: 1px solid var(--sp-line);
+        border-radius: 12px;
+        text-decoration: none;
+        transition: border-color 0.2s ease;
+    }
+
+    .neighbor:hover,
+    .neighbor:focus-visible {
+        border-color: var(--sp-accent);
+    }
+
+    .neighbor .dir {
+        font-size: 0.75rem;
+        color: var(--sp-sub);
+    }
+
+    .neighbor .n-title {
+        font-size: 0.9375rem;
+        font-weight: 500;
+        color: var(--sp-ink);
+    }
+
+    .neighbor.next {
+        align-self: flex-end;
+        text-align: right;
+        max-width: 85%;
+    }
+
+    .neighbor.prev {
+        max-width: 85%;
+    }
+</style>

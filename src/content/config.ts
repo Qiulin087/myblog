@@ -22,7 +22,31 @@ const postsCollection = defineCollection({
 const specCollection = defineCollection({
 	schema: z.object({}),
 });
+
+/* 学习理解：学习感悟与认知变化的长文 */
+const learningCollection = defineCollection({
+	schema: z.object({
+		title: z.string(),
+		published: z.date(),
+		updated: z.date().optional(),
+		description: z.string().optional().default(""),
+		draft: z.boolean().optional().default(false),
+	}),
+});
+
+/* 生活记录：日期 + 一段短文字 + 可选照片（路径指向 public/ 下的静态资源） */
+const lifeCollection = defineCollection({
+	schema: z.object({
+		published: z.date(),
+		title: z.string().optional().default(""),
+		photos: z.array(z.string()).optional().default([]),
+		draft: z.boolean().optional().default(false),
+	}),
+});
+
 export const collections = {
 	posts: postsCollection,
 	spec: specCollection,
+	learning: learningCollection,
+	life: lifeCollection,
 };

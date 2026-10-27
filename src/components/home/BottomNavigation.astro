@@ -1,0 +1,54 @@
+---
+import { url } from "@utils/url-utils";
+
+const year = new Date().getFullYear();
+/* 随笔入口：复用 Fuwari 归档页的分类过滤（ArchivePanel 读取 ?category= 查询参数） */
+const postsUrl = url("/archive/?category=随笔");
+---
+
+<nav class="bottom-nav" aria-label="栏目导航">
+    <a class="chip" href={postsUrl}>随笔</a>
+    <a class="chip" href={url("/learning/")}>学习理解</a>
+    <a class="chip" href={url("/life/")}>生活记录</a>
+</nav>
+<p class="copyright">© Qiulin · {year}</p>
+
+<style>
+    .bottom-nav {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.625rem;
+        padding: 0 0.5rem;
+    }
+
+    .chip {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.5rem 1.25rem;
+        border-radius: 999px;
+        background: var(--sp-chip);
+        border: 1px solid var(--sp-line);
+        color: var(--sp-sub);
+        font-size: 0.875rem;
+        text-decoration: none;
+        transition:
+            color 0.2s ease,
+            border-color 0.2s ease;
+    }
+
+    .chip:hover,
+    .chip:focus-visible {
+        color: var(--sp-accent-strong);
+        border-color: var(--sp-accent);
+    }
+
+    .copyright {
+        margin: 1.5rem 0 0;
+        padding-bottom: max(2rem, env(safe-area-inset-bottom));
+        text-align: center;
+        font-size: 0.75rem;
+        color: var(--sp-sub);
+        opacity: 0.85;
+    }
+</style>

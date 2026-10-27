@@ -8,7 +8,10 @@ import { getSortedPosts } from "../utils/content-utils";
 
 export const getStaticPaths = (async ({ paginate }) => {
 	const allBlogPosts = await getSortedPosts();
-	return paginate(allBlogPosts, { pageSize: PAGE_SIZE });
+	// 首页（/）改为独立的极简展示页，文章分页自第 2 页起（/2/、/3/…）
+	return paginate(allBlogPosts, { pageSize: PAGE_SIZE }).filter(
+		(p) => p.params.page,
+	);
 }) satisfies GetStaticPaths;
 // https://github.com/withastro/astro/issues/6507#issuecomment-1489916992
 

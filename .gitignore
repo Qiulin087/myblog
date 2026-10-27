@@ -45,3 +45,7 @@ android/.gradle/
 android/build/
 android/app/build/
 android/local.properties
+
+# ZCode 工作区工具（技能/本地状态，不属于博客仓库）
+.zcode/
+skills-lock.json

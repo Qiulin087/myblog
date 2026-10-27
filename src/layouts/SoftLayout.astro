@@ -1,0 +1,111 @@
+---
+import Layout from "@layouts/Layout.astro";
+import { url } from "@utils/url-utils";
+
+interface Props {
+	title?: string;
+	description?: string;
+}
+const { title, description } = Astro.props;
+---
+
+<Layout title={title} description={description}>
+    <div class="soft-scope">
+        <header class="soft-nav">
+            <a href={url("/")} class="soft-brand">Qiulin.</a>
+            <nav class="soft-nav-links" aria-label="站点导航">
+                <a href={url("/about/")}>关于</a>
+                <span class="dot" aria-hidden="true">·</span>
+                <a href={url("rss.xml")} target="_blank" rel="noopener noreferrer">RSS</a>
+            </nav>
+        </header>
+        <main class="soft-main transition-swup-fade">
+            <slot />
+        </main>
+    </div>
+</Layout>
+
+<style>
+    .soft-scope {
+        /* 淡蓝色系统：浅色 */
+        --sp-bg: #f5f9fd;
+        --sp-ink: #2d485d;
+        --sp-sub: #587689;
+        --sp-accent: #7197b2;
+        --sp-accent-strong: #4c7189;
+        --sp-btn: #b7d7ed;
+        --sp-btn-ink: #2d485d;
+        --sp-line: #dceaf4;
+        --sp-chip: #f9fcff;
+        min-height: 100dvh;
+        display: flex;
+        flex-direction: column;
+        background: var(--sp-bg);
+        color: var(--sp-ink);
+        padding: 0 clamp(1.25rem, 4vw, 2.5rem);
+    }
+
+    :global(.dark) .soft-scope {
+        /* 深蓝灰：低饱和、非纯黑 */
+        --sp-bg: #131b23;
+        --sp-ink: #cfdee9;
+        --sp-sub: #8ba2b5;
+        --sp-accent: #8fb3cf;
+        --sp-accent-strong: #a5c4dc;
+        --sp-btn: #2f4d68;
+        --sp-btn-ink: #d9e8f4;
+        --sp-line: #26333f;
+        --sp-chip: #1a2530;
+    }
+
+    .soft-nav {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        max-width: 72rem;
+        margin: 0 auto;
+        padding: 1.5rem 0;
+    }
+
+    .soft-brand {
+        font-size: 1.0625rem;
+        font-weight: 600;
+        letter-spacing: 0.01em;
+        color: var(--sp-ink);
+        text-decoration: none;
+    }
+
+    .soft-nav-links {
+        display: flex;
+        align-items: center;
+        gap: 0.625rem;
+        font-size: 0.875rem;
+    }
+
+    .soft-nav-links .dot {
+        color: var(--sp-sub);
+    }
+
+    .soft-nav-links a {
+        color: var(--sp-sub);
+        text-decoration: none;
+        padding: 0.25rem 0.125rem;
+        border-radius: 6px;
+        transition: color 0.2s ease;
+    }
+
+    .soft-nav-links a:hover,
+    .soft-nav-links a:focus-visible {
+        color: var(--sp-accent-strong);
+    }
+
+    .soft-main {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        max-width: 72rem;
+        margin: 0 auto;
+    }
+</style>

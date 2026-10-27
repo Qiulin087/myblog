@@ -12,7 +12,8 @@
 			"!**/src/**/*.css",
 			"!**/dist/**/*",
 			"!**/node_modules/**/*",
-			"!**/public/**/*"
+			"!**/public/**/*",
+			"!**/.zcode/**/*"
 		]
 	},
 	"formatter": {
