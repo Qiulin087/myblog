@@ -64,6 +64,10 @@ export type ProfileConfig = {
 	avatar?: string;
 	name: string;
 	bio?: string;
+	status?: {
+		enable: boolean;
+		text: string;
+	};
 	links: {
 		name: string;
 		url: string;

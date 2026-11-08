@@ -52,7 +52,11 @@ export const navBarConfig: NavBarConfig = {
 export const profileConfig: ProfileConfig = {
 	avatar: "assets/images/demo-avatar.png", // 直接覆盖同名文件即可换头像，无需改配置
 	name: "秋林",
-	bio: "简介",
+	bio: "秋林的博客，记录生活与学习，慢慢理解世界",
+	status: {
+		enable: true,
+		text: "正在折腾：前端体验与博客打磨",
+	},
 	links: [
 		{
 			name: "GitHub",

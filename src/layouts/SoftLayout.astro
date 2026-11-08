@@ -1,4 +1,5 @@
 ---
+import LightDarkSwitch from "@components/LightDarkSwitch.svelte";
 import Layout from "@layouts/Layout.astro";
 import { url } from "@utils/url-utils";
 
@@ -12,13 +13,23 @@ const { title, description } = Astro.props;
 <Layout title={title} description={description}>
     <div class="soft-scope">
         <header class="soft-nav">
-            <a href={url("/")} class="soft-brand">Qiulin.</a>
-            <nav class="soft-nav-links" aria-label="站点导航">
-                <a href={url("/about/")}>关于</a>
-                <span class="dot" aria-hidden="true">·</span>
-                <a href={url("rss.xml")} target="_blank" rel="noopener noreferrer">RSS</a>
+            <div class="nav-left">
+                <a href={url("/")} class="soft-brand">
+                    <span>Qiulin</span><span class="brand-dot">.</span>
+                </a>
+            </div>
+
+            <nav class="nav-center" aria-label="站点导航">
+                <a href={url("/about/")} class="nav-link">关于</a>
             </nav>
+
+            <div class="nav-right">
+                <div class="switch-wrap">
+                    <LightDarkSwitch client:load></LightDarkSwitch>
+                </div>
+            </div>
         </header>
+
         <main class="soft-main transition-swup-fade">
             <slot />
         </main>
@@ -43,6 +54,7 @@ const { title, description } = Astro.props;
         background: var(--sp-bg);
         color: var(--sp-ink);
         padding: 0 clamp(1.25rem, 4vw, 2.5rem);
+        position: relative;
     }
 
     :global(.dark) .soft-scope {
@@ -59,51 +71,82 @@ const { title, description } = Astro.props;
     }
 
     .soft-nav {
-        display: flex;
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
         align-items: center;
-        justify-content: space-between;
         width: 100%;
         max-width: 72rem;
         margin: 0 auto;
         padding: 1.5rem 0;
+        position: relative;
+        z-index: 10;
+    }
+
+    .nav-left {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+    }
+
+    .nav-center {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .nav-right {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
     }
 
     .soft-brand {
-        font-size: 1.0625rem;
-        font-weight: 600;
-        letter-spacing: 0.01em;
+        font-size: 1.125rem;
+        font-weight: 700;
+        letter-spacing: -0.01em;
         color: var(--sp-ink);
         text-decoration: none;
+        transition: opacity 0.2s ease;
     }
 
-    .soft-nav-links {
-        display: flex;
-        align-items: center;
-        gap: 0.625rem;
-        font-size: 0.875rem;
+    .soft-brand:hover {
+        opacity: 0.85;
     }
 
-    .soft-nav-links .dot {
-        color: var(--sp-sub);
+    .brand-dot {
+        color: var(--primary);
     }
 
-    .soft-nav-links a {
+    .nav-link {
         color: var(--sp-sub);
         text-decoration: none;
-        padding: 0.25rem 0.125rem;
-        border-radius: 6px;
-        transition: color 0.2s ease;
+        padding: 0.35rem 0.875rem;
+        font-size: 0.875rem;
+        border-radius: 999px;
+        transition: color 0.2s ease, background-color 0.2s ease;
     }
 
-    .soft-nav-links a:hover,
-    .soft-nav-links a:focus-visible {
+    .nav-link:hover,
+    .nav-link:focus-visible {
         color: var(--sp-accent-strong);
+        background: rgba(0, 0, 0, 0.04);
+    }
+
+    :global(.dark) .nav-link:hover,
+    :global(.dark) .nav-link:focus-visible {
+        background: rgba(255, 255, 255, 0.06);
+    }
+
+    .switch-wrap {
+        display: flex;
+        align-items: center;
     }
 
     .soft-main {
         flex: 1;
         display: flex;
         flex-direction: column;
+        justify-content: space-between;
         width: 100%;
         max-width: 72rem;
         margin: 0 auto;

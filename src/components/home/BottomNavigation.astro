@@ -11,6 +11,7 @@ const postsUrl = url("/archive/?category=随笔");
     <a class="chip" href={url("/learning/")}>学习理解</a>
     <a class="chip" href={url("/life/")}>生活记录</a>
 </nav>
+
 <p class="copyright">© Qiulin · {year}</p>
 
 <style>
@@ -18,29 +19,45 @@ const postsUrl = url("/archive/?category=随笔");
         display: flex;
         flex-wrap: wrap;
         justify-content: center;
-        gap: 0.625rem;
+        gap: 0.75rem;
         padding: 0 0.5rem;
+        margin-top: auto;
     }
 
     .chip {
         display: inline-flex;
         align-items: center;
-        padding: 0.5rem 1.25rem;
+        padding: 0.55rem 1.35rem;
         border-radius: 999px;
         background: var(--sp-chip);
         border: 1px solid var(--sp-line);
         color: var(--sp-sub);
         font-size: 0.875rem;
+        font-weight: 500;
         text-decoration: none;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
         transition:
             color 0.2s ease,
-            border-color 0.2s ease;
+            border-color 0.2s ease,
+            transform 0.2s ease,
+            box-shadow 0.2s ease;
     }
 
     .chip:hover,
     .chip:focus-visible {
         color: var(--sp-accent-strong);
         border-color: var(--sp-accent);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 10px -2px rgba(45, 72, 93, 0.12);
+    }
+
+    :global(.dark) .chip:hover,
+    :global(.dark) .chip:focus-visible {
+        box-shadow: 0 4px 10px -2px rgba(0, 0, 0, 0.35);
+    }
+
+    .chip:active {
+        transform: translateY(1px);
     }
 
     .copyright {

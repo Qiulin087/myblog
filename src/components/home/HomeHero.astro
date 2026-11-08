@@ -1,13 +1,39 @@
 ---
+import { profileConfig } from "@/config";
 import { url } from "@utils/url-utils";
+
+const status = profileConfig.status;
 ---
 
 <div class="hero">
-    <h1 class="title">你好，这里是秋林。</h1>
-    <p class="sub">记录一些想法，慢慢理解世界，也收藏生活。</p>
-    <a class="cta" href={url("/journal/")}>
-        浏览我的记录 <span class="arrow" aria-hidden="true">↗</span>
-    </a>
+    <!-- 翠绿呼吸灯微状态胶囊（带完整文字说明） -->
+    {
+        status?.enable && (
+            <div class="status-badge">
+                <span class="status-indicator">
+                    <span class="ping" />
+                    <span class="dot" />
+                </span>
+                <span class="status-text">{status.text}</span>
+            </div>
+        )
+    }
+
+    <h1 class="title">
+        你好，这里是<span class="name">{profileConfig.name}</span>
+        <span class="wave" aria-hidden="true">👋</span>
+    </h1>
+
+    <p class="sub">
+        {profileConfig.bio || "秋林的博客，记录生活与学习，慢慢理解世界"}
+    </p>
+
+    <div class="actions">
+        <a class="cta" href={url("/journal/")}>
+            <span>浏览我的记录</span>
+            <span class="arrow" aria-hidden="true">↗</span>
+        </a>
+    </div>
 </div>
 
 <style>
@@ -18,16 +44,111 @@ import { url } from "@utils/url-utils";
         justify-content: center;
         text-align: center;
         flex: 1;
-        padding: 3rem 0;
+        padding: 3rem 1rem 2rem;
+        max-width: 44rem;
+        margin: auto;
+    }
+
+    /* 翠绿呼吸灯微状态胶囊 */
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.35rem 0.95rem;
+        border-radius: 9999px;
+        background: rgba(16, 185, 129, 0.08);
+        border: 1px solid rgba(16, 185, 129, 0.28);
+        color: #047857;
+        font-size: 0.75rem;
+        font-weight: 500;
+        margin-bottom: 1.75rem;
+        letter-spacing: 0.01em;
+        user-select: none;
+        backdrop-filter: blur(8px);
+        box-shadow: 0 2px 8px -2px rgba(16, 185, 129, 0.15);
+        transition:
+            transform 0.2s ease,
+            border-color 0.2s ease;
+    }
+
+    :global(.dark) .status-badge {
+        background: rgba(16, 185, 129, 0.12);
+        border-color: rgba(16, 185, 129, 0.32);
+        color: #34d399;
+        box-shadow: 0 2px 8px -2px rgba(16, 185, 129, 0.25);
+    }
+
+    .status-badge:hover {
+        transform: translateY(-1px);
+        border-color: rgba(16, 185, 129, 0.45);
+    }
+
+    .status-indicator {
+        position: relative;
+        display: inline-flex;
+        width: 0.5rem;
+        height: 0.5rem;
+        flex-shrink: 0;
+    }
+
+    .ping {
+        position: absolute;
+        inset: 0;
+        border-radius: 9999px;
+        background: #10b981;
+        opacity: 0.75;
+        animation: status-ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+    }
+
+    .dot {
+        position: relative;
+        display: inline-flex;
+        border-radius: 9999px;
+        width: 0.5rem;
+        height: 0.5rem;
+        background: #10b981;
+        box-shadow: 0 0 6px rgba(16, 185, 129, 0.8);
+    }
+
+    @keyframes status-ping {
+        75%, 100% {
+            transform: scale(2.2);
+            opacity: 0;
+        }
     }
 
     .title {
         margin: 0;
-        font-size: clamp(1.875rem, 5vw, 3rem);
+        font-size: clamp(2rem, 5vw, 3rem);
         font-weight: 600;
         letter-spacing: -0.015em;
         line-height: 1.25;
         color: var(--sp-ink);
+    }
+
+    .title .name {
+        color: var(--sp-accent-strong);
+        margin-left: 0.2rem;
+    }
+
+    .title .wave {
+        display: inline-block;
+        transform-origin: 70% 70%;
+        transition: transform 0.3s ease;
+        cursor: default;
+        margin-left: 0.25rem;
+    }
+
+    .title:hover .wave {
+        animation: wave-hand 1.2s ease infinite;
+    }
+
+    @keyframes wave-hand {
+        0%, 100% { transform: rotate(0deg); }
+        20% { transform: rotate(14deg); }
+        40% { transform: rotate(-8deg); }
+        60% { transform: rotate(14deg); }
+        80% { transform: rotate(-4deg); }
     }
 
     .sub {
@@ -38,21 +159,32 @@ import { url } from "@utils/url-utils";
         max-width: 34em;
     }
 
+    .actions {
+        margin-top: 2.5rem;
+    }
+
     .cta {
         display: inline-flex;
         align-items: center;
         gap: 0.375rem;
-        margin-top: 2.75rem;
         padding: 0.8125rem 1.875rem;
-        border-radius: 12px;
+        border-radius: 999px;
         background: var(--sp-btn);
         color: var(--sp-btn-ink);
         font-size: 0.9375rem;
         font-weight: 500;
         text-decoration: none;
+        box-shadow: 0 2px 8px -2px rgba(45, 72, 93, 0.15);
         transition:
             background 0.2s ease,
-            transform 0.2s ease;
+            transform 0.2s ease,
+            box-shadow 0.2s ease;
+    }
+
+    :global(.dark) .cta {
+        background: var(--sp-btn);
+        color: var(--sp-btn-ink);
+        box-shadow: 0 2px 8px -2px rgba(0, 0, 0, 0.3);
     }
 
     .cta .arrow {
@@ -63,11 +195,13 @@ import { url } from "@utils/url-utils";
     .cta:hover,
     .cta:focus-visible {
         background: color-mix(in srgb, var(--sp-btn) 82%, var(--sp-ink));
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px -2px rgba(45, 72, 93, 0.2);
     }
 
     .cta:hover .arrow,
     .cta:focus-visible .arrow {
-        transform: translate(1px, -1px);
+        transform: translate(2px, -2px);
     }
 
     .cta:active {
@@ -76,13 +210,13 @@ import { url } from "@utils/url-utils";
 
     @media (max-width: 640px) {
         .hero {
-            padding: 2.5rem 0;
+            padding: 2rem 0.5rem;
         }
 
         .cta {
-            margin-top: 2.25rem;
+            margin-top: 2rem;
             width: 100%;
-            max-width: 20rem;
+            max-width: 18rem;
             justify-content: center;
         }
     }
