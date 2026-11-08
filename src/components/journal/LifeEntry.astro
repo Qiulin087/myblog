@@ -9,11 +9,7 @@ const { item } = Astro.props;
 
 const count = item.photos.length;
 const gridClass =
-	count === 1
-		? "grid-1"
-		: count === 2 || count === 4
-			? "grid-2"
-			: "grid-3";
+	count === 1 ? "grid-1" : count === 2 || count === 4 ? "grid-2" : "grid-3";
 ---
 
 <article class="life-item">
