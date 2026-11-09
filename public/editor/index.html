@@ -4,8 +4,8 @@
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 	<meta name="robots" content="noindex, nofollow">
-	<meta name="theme-color" content="#6d4df0">
-	<title>myblog</title>
+	<meta name="theme-color" content="#4c7189">
+	<title>myblog 编辑器</title>
 	<link rel="manifest" href="./manifest.webmanifest">
 	<link rel="icon" href="./icon-192.png">
 	<link rel="apple-touch-icon" href="./icon-192.png">
@@ -18,7 +18,7 @@
 	<section class="screen" id="screen-auth">
 		<div class="auth-wrap">
 			<div class="app-icon"><i data-lucide="feather"></i></div>
-			<h3>myblog</h3>
+			<h3>myblog 博客助手</h3>
 			<div class="domain" id="auth-domain"></div>
 			<div class="field">
 				<label for="f-token">GitHub Token</label>
@@ -35,49 +35,97 @@
 		</div>
 	</section>
 
-	<!-- ② 文章列表 -->
+	<!-- ② 内容列表 -->
 	<section class="screen" id="screen-list" hidden>
 		<header class="topbar">
-			<h4>我的博客</h4>
+			<div class="tb-left">
+				<h4>我的博客</h4>
+				<span class="live-dot" title="在线状态"></span>
+			</div>
 			<div class="tb-icons">
-				<a class="icon-btn" id="btn-visit" href="#" target="_blank" rel="noopener" aria-label="打开博客首页" data-tooltip="打开博客首页"><i data-lucide="globe"></i></a>
+				<a class="icon-btn" id="btn-visit" href="#" target="_blank" rel="noopener" aria-label="打开博客" data-tooltip="打开博客"><i data-lucide="globe"></i></a>
 				<button class="icon-btn" id="btn-refresh" type="button" aria-label="刷新" data-tooltip="刷新列表"><i data-lucide="refresh-cw"></i></button>
 				<button class="icon-btn" id="btn-settings" type="button" aria-label="设置" data-tooltip="设置 / 清除 token"><i data-lucide="settings"></i></button>
 			</div>
 		</header>
+
+		<!-- 分类筛选药丸 -->
+		<div class="filter-bar" role="tablist" aria-label="分类过滤">
+			<button class="f-pill active" data-filter="all" type="button">全部 <span class="badge" id="count-all">0</span></button>
+			<button class="f-pill" data-filter="post" type="button"><i data-lucide="file-text"></i>随笔 <span class="badge" id="count-post">0</span></button>
+			<button class="f-pill" data-filter="learning" type="button"><i data-lucide="lightbulb"></i>学习 <span class="badge" id="count-learning">0</span></button>
+			<button class="f-pill" data-filter="life" type="button"><i data-lucide="camera"></i>生活 <span class="badge" id="count-life">0</span></button>
+		</div>
+
 		<div class="list" id="post-list"></div>
-		<button class="new-fab" id="btn-new" type="button"><i data-lucide="plus"></i>写新文章</button>
+		<button class="new-fab" id="btn-new" type="button"><i data-lucide="plus"></i>发布新内容</button>
 	</section>
 
 	<!-- ③ 编辑 -->
 	<section class="screen" id="screen-edit" hidden>
 		<header class="ehead">
 			<button class="icon-btn" id="btn-back" type="button" aria-label="返回"><i data-lucide="arrow-left"></i></button>
-			<div class="e-title"><small id="edit-state">正在编辑</small><span id="edit-title">…</span></div>
-			<button class="icon-btn danger" id="btn-del" type="button" aria-label="删除文章" data-tooltip="删除这篇文章"><i data-lucide="trash-2"></i></button>
+			<div class="e-title">
+				<div class="e-meta-row">
+					<span class="type-tag" id="edit-type-badge">随笔</span>
+					<small id="edit-state">正在编辑</small>
+				</div>
+				<span id="edit-title">…</span>
+			</div>
+			<button class="icon-btn danger" id="btn-del" type="button" aria-label="删除" data-tooltip="删除这篇文章"><i data-lucide="trash-2"></i></button>
 			<button class="pill-btn primary" id="btn-save" type="button"><i data-lucide="cloud-upload"></i>保存</button>
 		</header>
+
 		<div class="ebody">
-			<div class="field"><label for="f-title">标题</label>
-				<input class="input" id="f-title" type="text" placeholder="文章标题"></div>
-			<div class="frow">
-				<div class="field"><label for="f-cat">分类</label>
-					<input class="input" id="f-cat" type="text" placeholder="随笔"></div>
-				<div class="field"><label for="f-tags">标签（逗号分隔）</label>
-					<input class="input" id="f-tags" type="text" placeholder="博客, 随笔"></div>
+			<!-- 标题（生活记录为选填） -->
+			<div class="field" id="field-title-wrap">
+				<label for="f-title" id="lbl-title">标题</label>
+				<input class="input" id="f-title" type="text" placeholder="文章标题">
 			</div>
-			<div class="field"><label for="f-desc">摘要（首页卡片显示，可空）</label>
-				<input class="input" id="f-desc" type="text" placeholder=""></div>
+
+			<!-- 随笔专有：分类与标签 -->
+			<div class="frow" id="field-post-meta">
+				<div class="field">
+					<label for="f-cat">分类</label>
+					<input class="input" id="f-cat" type="text" placeholder="随笔">
+				</div>
+				<div class="field">
+					<label for="f-tags">标签（逗号分隔）</label>
+					<input class="input" id="f-tags" type="text" placeholder="博客, 随笔">
+				</div>
+			</div>
+
+			<!-- 摘要（随笔和学习理解可用） -->
+			<div class="field" id="field-desc-wrap">
+				<label for="f-desc">摘要（首页卡片显示，可空）</label>
+				<input class="input" id="f-desc" type="text" placeholder="">
+			</div>
+
+			<!-- 生活记录专有：多照片管理 -->
+			<div class="life-photos-section" id="section-life-photos" hidden>
+				<div class="sec-head">
+					<label><i data-lucide="image"></i>生活照片（展示在图文流中）</label>
+					<button class="pill-btn xs" id="btn-life-add-photo" type="button"><i data-lucide="plus"></i>添加照片</button>
+				</div>
+				<div class="photo-grid" id="life-photo-grid"></div>
+				<div class="photo-empty-tip" id="photo-empty-tip">还没有照片，点击上方按钮上传（支持相册多选）</div>
+			</div>
+
+			<!-- 通用状态：草稿与日期 -->
 			<div class="frow2">
 				<span class="switch"><input type="checkbox" id="f-draft"><span class="track"></span><span class="knob"></span></span>
 				<label for="f-draft">草稿（仅自己可见）</label>
 				<span class="date"><i data-lucide="calendar"></i><input type="date" id="f-date"></span>
 			</div>
-			<div class="tabs" role="tablist" aria-label="编辑或预览">
+
+			<!-- 选项卡（编辑/预览） -->
+			<div class="tabs" id="editor-tabs" role="tablist" aria-label="编辑或预览">
 				<button type="button" class="on" id="tab-write" role="tab" aria-selected="true" aria-controls="pane-write"><i data-lucide="pen-line"></i>编辑</button>
 				<button type="button" id="tab-prev" role="tab" aria-selected="false" aria-controls="pane-prev"><i data-lucide="eye"></i>预览</button>
 			</div>
+
 			<div class="pane" id="pane-write" role="tabpanel" aria-labelledby="tab-write">
+				<!-- Markdown 快捷工具栏（主要给随笔和学习长文使用） -->
 				<div class="md-tools" id="md-tools" role="toolbar" aria-label="Markdown 格式">
 					<button type="button" data-tool="bold" aria-label="加粗" data-tooltip="加粗 **文字**"><i data-lucide="bold"></i></button>
 					<button type="button" data-tool="heading" aria-label="标题" data-tooltip="二级标题"><i data-lucide="heading-2"></i></button>
@@ -88,34 +136,73 @@
 				</div>
 				<textarea class="textarea" id="f-body" spellcheck="false" placeholder="用 Markdown 写正文…"></textarea>
 			</div>
+
 			<div class="pane" id="pane-prev" role="tabpanel" aria-labelledby="tab-prev" hidden>
 				<div class="preview md-body" id="preview"></div>
 			</div>
+
 			<div class="banner" id="draft-banner" hidden>
 				<span>已恢复上次未保存的本地草稿</span>
 				<button type="button" id="btn-discard-draft">放弃并还原</button>
 			</div>
 		</div>
+
 		<div class="ebar">
-			<button class="ghost-btn" id="btn-img" type="button"><i data-lucide="camera"></i>插入图片</button>
+			<!-- 随笔插入正文配图按钮（如果是生活记录则显示添加生活照片） -->
+			<button class="ghost-btn" id="btn-img" type="button"><i data-lucide="camera"></i><span>插入配图</span></button>
 			<input type="file" id="img-input" accept="image/*" multiple hidden>
 			<span class="save-hint" id="save-hint"><i data-lucide="pencil-line"></i>未保存</span>
 		</div>
 	</section>
 
-	<!-- 新建文章弹窗 -->
+	<!-- 新建内容弹窗 -->
 	<div class="overlay" id="dlg-new" hidden>
 		<div class="dlg">
-			<h5>写新文章</h5>
-			<div class="field"><label for="f-new-title">标题</label>
-				<input class="input" id="f-new-title" type="text" placeholder="文章标题"></div>
-			<div class="field"><label for="f-new-slug">链接名（slug，小写英文/数字/短横线）</label>
-				<input class="input" id="f-new-slug" type="text" placeholder="my-new-post" spellcheck="false" autocomplete="off">
-				<small>将出现在文章链接 <code id="slug-demo">/posts/…/</code> 中，发布后不要随意修改</small></div>
+			<h5>新建内容</h5>
+
+			<!-- 类型选择卡片 -->
+			<div class="type-selector" id="new-type-selector">
+				<label class="type-card selected" data-type="post">
+					<input type="radio" name="new-type" value="post" checked>
+					<div class="tc-icon"><i data-lucide="file-text"></i></div>
+					<div class="tc-text">
+						<strong>随笔 (Post)</strong>
+						<small>博客文章，支持分类与标签</small>
+					</div>
+				</label>
+				<label class="type-card" data-type="learning">
+					<input type="radio" name="new-type" value="learning">
+					<div class="tc-icon"><i data-lucide="lightbulb"></i></div>
+					<div class="tc-text">
+						<strong>学习理解 (Learning)</strong>
+						<small>深度长文、认知与思考</small>
+					</div>
+				</label>
+				<label class="type-card" data-type="life">
+					<input type="radio" name="new-type" value="life">
+					<div class="tc-icon"><i data-lucide="camera"></i></div>
+					<div class="tc-text">
+						<strong>生活记录 (Life)</strong>
+						<small>图文瞬间、日常随感与多图相册</small>
+					</div>
+				</label>
+			</div>
+
+			<div class="field" id="dlg-title-field">
+				<label for="f-new-title" id="dlg-lbl-title">标题</label>
+				<input class="input" id="f-new-title" type="text" placeholder="标题">
+			</div>
+
+			<div class="field" id="dlg-slug-field">
+				<label for="f-new-slug">链接文件名（slug）</label>
+				<input class="input" id="f-new-slug" type="text" placeholder="my-new-entry" spellcheck="false" autocomplete="off">
+				<small id="slug-tip">路径：<code id="slug-demo">/posts/…/</code></small>
+			</div>
+
 			<div class="error" id="new-error" hidden></div>
 			<div class="dlg-actions">
 				<button class="pill-btn" id="btn-new-cancel" type="button">取消</button>
-				<button class="pill-btn primary" id="btn-new-create" type="button"><i data-lucide="check"></i>开始写</button>
+				<button class="pill-btn primary" id="btn-new-create" type="button"><i data-lucide="check"></i>开始撰写</button>
 			</div>
 		</div>
 	</div>

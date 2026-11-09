@@ -1,10 +1,12 @@
 ---
 import BottomNavigation from "@components/home/BottomNavigation.astro";
+import HomeBackground from "@components/home/HomeBackground.astro";
 import HomeHero from "@components/home/HomeHero.astro";
 import SoftLayout from "@layouts/SoftLayout.astro";
 ---
 
-<SoftLayout>
+<SoftLayout isHome={true}>
+    <HomeBackground />
     <HomeHero />
     <BottomNavigation />
 </SoftLayout>

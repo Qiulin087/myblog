@@ -6,12 +6,13 @@ import { url } from "@utils/url-utils";
 interface Props {
 	title?: string;
 	description?: string;
+	isHome?: boolean;
 }
-const { title, description } = Astro.props;
+const { title, description, isHome = false } = Astro.props;
 ---
 
 <Layout title={title} description={description}>
-    <div class="soft-scope">
+    <div class:list={["soft-scope", { "is-home": isHome }]}>
         <header class="soft-nav">
             <div class="nav-left">
                 <a href={url("/")} class="soft-brand">
@@ -68,6 +69,11 @@ const { title, description } = Astro.props;
         --sp-btn-ink: #d9e8f4;
         --sp-line: #26333f;
         --sp-chip: #1a2530;
+    }
+
+    :global(.dark) .soft-scope.is-home {
+        --sp-bg: #0c072f;
+        background: #0c072f;
     }
 
     .soft-nav {
@@ -135,6 +141,44 @@ const { title, description } = Astro.props;
     :global(.dark) .nav-link:hover,
     :global(.dark) .nav-link:focus-visible {
         background: rgba(255, 255, 255, 0.06);
+    }
+
+    :global(.dark) .is-home .soft-brand {
+        color: #e7e2ff;
+    }
+
+    :global(.dark) .is-home .soft-brand:hover {
+        color: #9aa8ff;
+    }
+
+    .is-home .nav-link {
+        padding: 0.4rem 1.15rem;
+        border-radius: 9999px;
+        background: rgba(255, 255, 255, 0.6);
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        backdrop-filter: blur(12px);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+        transition: all 0.25s ease;
+    }
+
+    :global(.dark) .is-home .nav-link {
+        color: #e7e2ff;
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        backdrop-filter: blur(12px);
+    }
+
+    .is-home .nav-link:hover,
+    .is-home .nav-link:focus-visible {
+        transform: scale(1.05);
+    }
+
+    :global(.dark) .is-home .nav-link:hover,
+    :global(.dark) .is-home .nav-link:focus-visible {
+        background: rgba(255, 255, 255, 0.12);
+        border-color: rgba(154, 168, 255, 0.5);
+        box-shadow: 0 0 20px rgba(137, 153, 255, 0.35);
+        color: #ffffff;
     }
 
     .switch-wrap {

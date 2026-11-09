@@ -1,20 +1,28 @@
-/* 博客编辑器（PWA）样式 —— 按确认过的设计稿实现，深浅色跟随系统 */
+/* 博客编辑器（PWA / Android WebView）样式
+   与博客主站 Soft Blue（淡蓝极简风）保持一致，支持深浅色自适应跟随系统 */
 
 :root {
 	color-scheme: light dark;
-	--be-page: light-dark(#f1eef7, #17161e);
-	--be-screen: light-dark(#f6f4fa, #1e1d27);
-	--be-card: light-dark(#ffffff, #262532);
-	--be-text: light-dark(#2a2833, #ece9f4);
-	--be-sub: light-dark(#716d82, #a29db8);
-	--be-primary: light-dark(#6d4df0, #9b7ff5);
-	--be-primary-fg: #ffffff;
-	--be-weak: light-dark(#ede8fb, #2f2b45);
-	--be-border: light-dark(#e6e2f0, #35323f);
-	--be-green: light-dark(#1a9e5c, #4cd48a);
-	--be-amber: light-dark(#d98a04, #e8b04a);
-	--be-red: light-dark(#d94040, #ef7070);
-	--be-shadow: 0 8px 22px rgba(0, 0, 0, 0.22);
+	/* 浅色模式：天蓝/淡蓝灰高雅极简 */
+	--be-page: light-dark(#f4f8fc, #111820);
+	--be-screen: light-dark(#f8fafc, #16202a);
+	--be-card: light-dark(#ffffff, #1c2732);
+	--be-text: light-dark(#2d485d, #cfdee9);
+	--be-sub: light-dark(#587689, #8ba2b5);
+	--be-primary: light-dark(#4c7189, #7da5c3);
+	--be-primary-hover: light-dark(#3c5b70, #96bad6);
+	--be-primary-fg: light-dark(#ffffff, #0d151c);
+	--be-weak: light-dark(#eaf2f8, #22313f);
+	--be-border: light-dark(#dceaf4, #283745);
+	--be-chip: light-dark(#f0f6fa, #1e2c38);
+
+	/* 辅助与状态色 */
+	--be-green: light-dark(#2a9d8f, #4cd4b0);
+	--be-amber: light-dark(#d97706, #f59e0b);
+	--be-indigo: light-dark(#4f46e5, #818cf8);
+	--be-cyan: light-dark(#0284c7, #38bdf8);
+	--be-red: light-dark(#e11d48, #fb7185);
+	--be-shadow: 0 8px 24px rgba(18, 38, 58, 0.12);
 }
 
 * {
@@ -30,7 +38,7 @@ body {
 
 body {
 	font-family:
-		-apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+		-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
 	background: var(--be-page);
 	color: var(--be-text);
 	font-size: 15px;
@@ -73,36 +81,37 @@ svg.lucide {
 	flex-direction: column;
 	align-items: stretch;
 	text-align: center;
-	padding: max(34px, env(safe-area-inset-top)) 24px 14px;
+	padding: max(36px, env(safe-area-inset-top)) 24px 16px;
 	overflow-y: auto;
 }
 
 .auth-wrap .app-icon {
-	width: 64px;
-	height: 64px;
-	border-radius: 18px;
+	width: 68px;
+	height: 68px;
+	border-radius: 20px;
 	margin: 0 auto;
-	background: linear-gradient(145deg, #7b5bf2, #5636c9);
+	background: linear-gradient(135deg, #7197b2, #4c7189);
 	display: flex;
 	align-items: center;
 	justify-content: center;
 	color: #fff;
-	box-shadow: 0 8px 20px rgba(109, 77, 240, 0.38);
+	box-shadow: 0 10px 24px rgba(76, 113, 137, 0.35);
 }
 
 .auth-wrap .app-icon i,
 .auth-wrap .app-icon svg {
-	width: 30px;
-	height: 30px;
+	width: 32px;
+	height: 32px;
 }
 
 .auth-wrap h3 {
-	margin: 14px 0 2px;
-	font-size: 18px;
-	font-weight: 500;
+	margin: 16px 0 2px;
+	font-size: 19px;
+	font-weight: 600;
+	letter-spacing: -0.01em;
 }
 .auth-wrap .domain {
-	font-size: 12px;
+	font-size: 13px;
 	color: var(--be-sub);
 }
 
@@ -111,8 +120,8 @@ svg.lucide {
 	background: var(--be-card);
 	border: 1px solid var(--be-border);
 	border-radius: 14px;
-	padding: 12px 14px;
-	margin-top: 18px;
+	padding: 14px 16px;
+	margin-top: 20px;
 }
 
 .auth-wrap .steps div {
@@ -120,14 +129,14 @@ svg.lucide {
 	color: var(--be-sub);
 	line-height: 1.6;
 	display: flex;
-	gap: 8px;
+	gap: 10px;
 }
 .auth-wrap .steps div + div {
-	margin-top: 7px;
+	margin-top: 10px;
 }
 .auth-wrap .steps b {
 	color: var(--be-primary);
-	font-weight: 500;
+	font-weight: 600;
 	flex: none;
 }
 .auth-wrap .steps code {
@@ -135,27 +144,27 @@ svg.lucide {
 	font-size: 11px;
 	background: var(--be-weak);
 	border-radius: 5px;
-	padding: 1px 4px;
+	padding: 1px 5px;
 }
 
 .auth-wrap .auth-foot {
 	margin-top: auto;
-	padding-top: 14px;
-	font-size: 11.5px;
+	padding-top: 18px;
+	font-size: 12px;
 	color: var(--be-sub);
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	gap: 5px;
+	gap: 6px;
 }
 
 .auth-wrap .auth-foot i,
 .auth-wrap .auth-foot svg {
-	width: 13px;
-	height: 13px;
+	width: 14px;
+	height: 14px;
 }
 
-/* ---------- 表单元素 ---------- */
+/* ---------- 通用表单元素 ---------- */
 
 .field {
 	text-align: left;
@@ -166,6 +175,7 @@ svg.lucide {
 	font-size: 12.5px;
 	color: var(--be-sub);
 	margin: 0 0 6px 2px;
+	font-weight: 500;
 }
 .field small {
 	display: block;
@@ -175,22 +185,22 @@ svg.lucide {
 }
 .field small code {
 	font-family: ui-monospace, Menlo, monospace;
-	font-size: 10.5px;
+	font-size: 11px;
 	background: var(--be-weak);
 	border-radius: 4px;
-	padding: 1px 4px;
+	padding: 1px 5px;
 }
 
 .input,
 .textarea {
 	width: 100%;
 	font: inherit;
-	font-size: 16px; /* ≥16px，避免 iOS 聚焦缩放 */
+	font-size: 16px; /* 防止移动端聚焦缩放 */
 	color: var(--be-text);
 	background: var(--be-card);
 	border: 1.5px solid var(--be-border);
 	border-radius: 12px;
-	padding: 11px 12px;
+	padding: 11px 13px;
 	outline: none;
 	transition:
 		border-color 0.15s,
@@ -203,7 +213,7 @@ svg.lucide {
 }
 .date .input {
 	font-size: 14px;
-	padding: 6px 8px;
+	padding: 6px 10px;
 	width: auto;
 }
 
@@ -215,7 +225,7 @@ svg.lucide {
 
 .input::placeholder,
 .textarea::placeholder {
-	color: color-mix(in srgb, var(--be-sub) 70%, transparent);
+	color: color-mix(in srgb, var(--be-sub) 65%, transparent);
 }
 
 .btn-primary {
@@ -225,32 +235,31 @@ svg.lucide {
 	padding: 13px;
 	font: inherit;
 	font-size: 15px;
-	font-weight: 500;
+	font-weight: 600;
 	background: var(--be-primary);
 	color: var(--be-primary-fg);
 	cursor: pointer;
-	margin-top: 14px;
+	margin-top: 16px;
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	gap: 7px;
+	gap: 8px;
+	transition: background 0.15s, opacity 0.15s;
 }
 
-.btn-primary:disabled {
-	opacity: 0.6;
+.btn-primary:active {
+	opacity: 0.9;
 }
-.btn-primary i,
-.btn-primary svg {
-	width: 17px;
-	height: 17px;
+.btn-primary:disabled {
+	opacity: 0.5;
 }
 
 .error {
 	margin-top: 12px;
-	padding: 10px 12px;
+	padding: 10px 14px;
 	border-radius: 11px;
 	background: color-mix(in srgb, var(--be-red) 12%, transparent);
-	border: 1px solid color-mix(in srgb, var(--be-red) 38%, transparent);
+	border: 1px solid color-mix(in srgb, var(--be-red) 32%, transparent);
 	color: var(--be-red);
 	font-size: 12.5px;
 	text-align: left;
@@ -258,20 +267,50 @@ svg.lucide {
 	overflow-wrap: anywhere;
 }
 
-/* ---------- 列表 ---------- */
+/* ---------- 列表与顶栏 ---------- */
 
 .topbar {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	padding: max(12px, env(safe-area-inset-top)) 18px 10px;
+	padding: max(14px, env(safe-area-inset-top)) 18px 8px;
+}
+
+.tb-left {
+	display: flex;
+	align-items: center;
+	gap: 8px;
 }
 
 .topbar h4 {
 	margin: 0;
-	font-size: 17px;
-	font-weight: 500;
+	font-size: 18px;
+	font-weight: 600;
+	letter-spacing: -0.01em;
 }
+
+/* 呼吸灯在线点 */
+.live-dot {
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background: var(--be-green);
+	box-shadow: 0 0 0 0 color-mix(in srgb, var(--be-green) 60%, transparent);
+	animation: be-pulse 2.2s infinite;
+}
+
+@keyframes be-pulse {
+	0% {
+		box-shadow: 0 0 0 0 color-mix(in srgb, var(--be-green) 60%, transparent);
+	}
+	70% {
+		box-shadow: 0 0 0 6px transparent;
+	}
+	100% {
+		box-shadow: 0 0 0 0 transparent;
+	}
+}
+
 .tb-icons {
 	display: flex;
 	gap: 4px;
@@ -290,6 +329,7 @@ svg.lucide {
 	cursor: pointer;
 	padding: 0;
 	text-decoration: none;
+	transition: background 0.15s, color 0.15s;
 }
 
 .icon-btn:hover,
@@ -300,12 +340,59 @@ svg.lucide {
 .icon-btn.danger:hover,
 .icon-btn.danger:focus-visible {
 	color: var(--be-red);
+	background: color-mix(in srgb, var(--be-red) 12%, transparent);
+}
+
+/* 分类筛选药丸栏 */
+.filter-bar {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 6px 18px 10px;
+	overflow-x: auto;
+	scrollbar-width: none;
+	-ms-overflow-style: none;
+	flex: none;
+}
+.filter-bar::-webkit-scrollbar {
+	display: none;
+}
+
+.f-pill {
+	border: 1px solid var(--be-border);
+	background: var(--be-card);
+	color: var(--be-sub);
+	font: inherit;
+	font-size: 13px;
+	font-weight: 500;
+	border-radius: 999px;
+	padding: 5px 12px;
+	display: inline-flex;
+	align-items: center;
+	gap: 5px;
+	cursor: pointer;
+	white-space: nowrap;
+	transition: all 0.15s;
+}
+.f-pill i,
+.f-pill svg {
+	width: 14px;
+	height: 14px;
+}
+.f-pill .badge {
+	font-size: 11px;
+	opacity: 0.75;
+}
+.f-pill.active {
+	background: var(--be-primary);
+	border-color: var(--be-primary);
+	color: var(--be-primary-fg);
 }
 
 .list {
 	flex: 1;
 	overflow-y: auto;
-	padding: 2px 14px 12px;
+	padding: 4px 16px 12px;
 }
 
 .post {
@@ -317,18 +404,18 @@ svg.lucide {
 	background: var(--be-card);
 	border: 1px solid var(--be-border);
 	border-radius: 14px;
-	padding: 13px 14px;
+	padding: 13px 15px;
 	cursor: pointer;
 	font: inherit;
 	color: var(--be-text);
-	transition: transform 0.1s;
+	transition: transform 0.1s, border-color 0.15s;
 }
 
 .post:active {
 	transform: scale(0.985);
 }
 .post + .post {
-	margin-top: 9px;
+	margin-top: 10px;
 }
 
 .dot {
@@ -348,8 +435,14 @@ svg.lucide {
 	flex: 1;
 	min-width: 0;
 }
+.post .p-header {
+	display: flex;
+	align-items: center;
+	gap: 7px;
+	margin-bottom: 2px;
+}
 .post .p-title {
-	font-size: 14.5px;
+	font-size: 15px;
 	font-weight: 500;
 	display: block;
 	white-space: nowrap;
@@ -357,10 +450,11 @@ svg.lucide {
 	text-overflow: ellipsis;
 }
 .post .p-meta {
-	font-size: 11.5px;
+	font-size: 12px;
 	color: var(--be-sub);
-	margin-top: 3px;
-	display: block;
+	display: flex;
+	align-items: center;
+	gap: 6px;
 }
 .post .p-meta em {
 	font-style: normal;
@@ -368,6 +462,41 @@ svg.lucide {
 .post .p-meta em.draft {
 	color: var(--be-amber);
 }
+.post .p-photos-count {
+	display: inline-flex;
+	align-items: center;
+	gap: 3px;
+	font-size: 11.5px;
+	color: var(--be-cyan);
+}
+.post .p-photos-count i,
+.post .p-photos-count svg {
+	width: 12px;
+	height: 12px;
+}
+
+.type-tag {
+	font-size: 10.5px;
+	font-weight: 600;
+	padding: 2px 7px;
+	border-radius: 6px;
+	letter-spacing: 0.02em;
+	display: inline-block;
+	flex: none;
+}
+.type-tag.post {
+	background: color-mix(in srgb, var(--be-cyan) 16%, transparent);
+	color: var(--be-cyan);
+}
+.type-tag.learning {
+	background: color-mix(in srgb, var(--be-indigo) 16%, transparent);
+	color: var(--be-indigo);
+}
+.type-tag.life {
+	background: color-mix(in srgb, var(--be-amber) 16%, transparent);
+	color: var(--be-amber);
+}
+
 .post > i,
 .post > svg {
 	width: 16px;
@@ -377,10 +506,10 @@ svg.lucide {
 }
 
 .list-state {
-	margin: 26px auto;
+	margin: 36px auto;
 	text-align: center;
 	color: var(--be-sub);
-	font-size: 13px;
+	font-size: 13.5px;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
@@ -389,8 +518,8 @@ svg.lucide {
 }
 
 .spinner {
-	width: 26px;
-	height: 26px;
+	width: 28px;
+	height: 28px;
 	border-radius: 50%;
 	border: 3px solid var(--be-weak);
 	border-top-color: var(--be-primary);
@@ -404,7 +533,7 @@ svg.lucide {
 }
 
 .new-fab {
-	margin: 12px 14px calc(14px + env(safe-area-inset-bottom));
+	margin: 12px 16px calc(14px + env(safe-area-inset-bottom));
 	border: none;
 	border-radius: 14px;
 	padding: 14px;
@@ -412,41 +541,49 @@ svg.lucide {
 	color: var(--be-primary-fg);
 	font: inherit;
 	font-size: 15px;
-	font-weight: 500;
+	font-weight: 600;
 	display: flex;
 	align-items: center;
 	justify-content: center;
 	gap: 8px;
 	cursor: pointer;
+	box-shadow: 0 4px 14px color-mix(in srgb, var(--be-primary) 32%, transparent);
+	transition: background 0.15s;
 }
 
-.new-fab i,
-.new-fab svg {
-	width: 18px;
-	height: 18px;
+.new-fab:active {
+	opacity: 0.92;
 }
 
-/* ---------- 编辑 ---------- */
+/* ---------- 编辑界面 ---------- */
 
 .ehead {
 	display: flex;
 	align-items: center;
-	gap: 4px;
-	padding: max(10px, env(safe-area-inset-top)) 12px 8px;
+	gap: 6px;
+	padding: max(10px, env(safe-area-inset-top)) 14px 8px;
 }
 
 .e-title {
 	flex: 1;
 	min-width: 0;
 }
+.e-meta-row {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	margin-bottom: 2px;
+}
 .e-title small {
-	display: block;
 	font-size: 11px;
 	color: var(--be-sub);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 .e-title span {
-	font-size: 15.5px;
-	font-weight: 500;
+	font-size: 16px;
+	font-weight: 600;
 	display: block;
 	white-space: nowrap;
 	overflow: hidden;
@@ -461,12 +598,13 @@ svg.lucide {
 	font-size: 13.5px;
 	font-weight: 500;
 	border-radius: 999px;
-	padding: 8px 14px;
+	padding: 8px 15px;
 	display: flex;
 	align-items: center;
 	gap: 6px;
 	cursor: pointer;
 	flex: none;
+	transition: all 0.15s;
 }
 
 .pill-btn.primary {
@@ -474,18 +612,18 @@ svg.lucide {
 	border-color: var(--be-primary);
 	color: var(--be-primary-fg);
 }
+.pill-btn.xs {
+	padding: 4px 10px;
+	font-size: 12px;
+	border-radius: 8px;
+}
 .pill-btn:disabled {
 	opacity: 0.6;
-}
-.pill-btn i,
-.pill-btn svg {
-	width: 15px;
-	height: 15px;
 }
 
 .ebody {
 	flex: 1;
-	padding: 0 14px 10px;
+	padding: 0 16px 12px;
 	overflow-y: auto;
 	display: flex;
 	flex-direction: column;
@@ -493,7 +631,7 @@ svg.lucide {
 
 .frow {
 	display: flex;
-	gap: 9px;
+	gap: 10px;
 }
 .frow .field {
 	flex: 1;
@@ -504,7 +642,7 @@ svg.lucide {
 	display: flex;
 	align-items: center;
 	gap: 10px;
-	margin-top: 12px;
+	margin-top: 14px;
 }
 .frow2 > label {
 	font-size: 13.5px;
@@ -563,6 +701,87 @@ svg.lucide {
 	left: 20.5px;
 }
 
+/* 生活记录专属照片区域 */
+.life-photos-section {
+	margin-top: 14px;
+	background: var(--be-card);
+	border: 1px solid var(--be-border);
+	border-radius: 14px;
+	padding: 12px 14px;
+}
+.life-photos-section[hidden] {
+	display: none;
+}
+.sec-head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 10px;
+}
+.sec-head label {
+	font-size: 13px;
+	font-weight: 600;
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	color: var(--be-text);
+}
+.sec-head label i,
+.sec-head label svg {
+	color: var(--be-cyan);
+}
+
+.photo-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(78px, 1fr));
+	gap: 8px;
+}
+.photo-item {
+	position: relative;
+	aspect-ratio: 1;
+	border-radius: 10px;
+	overflow: hidden;
+	background: var(--be-weak);
+	border: 1px solid var(--be-border);
+}
+.photo-item img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	display: block;
+}
+.photo-del {
+	position: absolute;
+	top: 4px;
+	right: 4px;
+	width: 22px;
+	height: 22px;
+	border-radius: 50%;
+	background: rgba(0, 0, 0, 0.65);
+	color: #fff;
+	border: none;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+	padding: 0;
+}
+.photo-del i,
+.photo-del svg {
+	width: 13px;
+	height: 13px;
+}
+.photo-empty-tip {
+	font-size: 12px;
+	color: var(--be-sub);
+	text-align: center;
+	padding: 14px 8px;
+	border: 1.5px dashed var(--be-border);
+	border-radius: 10px;
+	background: var(--be-weak);
+}
+
+/* 选项卡与编辑区 */
 .tabs {
 	display: flex;
 	background: var(--be-weak);
@@ -586,16 +805,12 @@ svg.lucide {
 	align-items: center;
 	justify-content: center;
 	gap: 6px;
-}
-.tabs button i,
-.tabs button svg {
-	width: 14px;
-	height: 14px;
+	transition: all 0.15s;
 }
 .tabs button.on {
 	background: var(--be-card);
 	color: var(--be-text);
-	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
 }
 
 .pane {
@@ -604,7 +819,7 @@ svg.lucide {
 	flex-direction: column;
 	margin-top: 10px;
 	min-height: 180px;
-	gap: 9px;
+	gap: 8px;
 }
 .pane[hidden] {
 	display: none;
@@ -613,34 +828,31 @@ svg.lucide {
 .md-tools {
 	display: flex;
 	flex-wrap: wrap;
-	gap: 7px;
-	margin-top: 12px;
+	gap: 6px;
+	margin-top: 6px;
 	flex: none;
 }
-
+.md-tools[hidden] {
+	display: none;
+}
 .md-tools button {
-	width: 40px;
+	width: 38px;
 	height: 32px;
 	border: 1.5px solid var(--be-border);
 	background: var(--be-card);
 	color: var(--be-sub);
-	border-radius: 9px;
+	border-radius: 8px;
 	display: flex;
 	align-items: center;
 	justify-content: center;
 	cursor: pointer;
 	padding: 0;
+	transition: all 0.12s;
 }
-
 .md-tools button:hover,
 .md-tools button:focus-visible {
 	color: var(--be-primary);
 	border-color: var(--be-primary);
-}
-.md-tools button i,
-.md-tools button svg {
-	width: 16px;
-	height: 16px;
 }
 
 .textarea {
@@ -658,21 +870,15 @@ svg.lucide {
 	background: var(--be-card);
 	border: 1.5px solid var(--be-border);
 	border-radius: 12px;
-	padding: 14px 15px;
+	padding: 14px 16px;
 }
 
-/* 预览正文样式（基础 Markdown） */
 .md-body h1,
 .md-body h2,
 .md-body h3 {
-	font-weight: 500;
+	font-weight: 600;
 	margin: 14px 0 8px;
 	font-size: 17px;
-}
-.md-body h1:first-child,
-.md-body h2:first-child,
-.md-body h3:first-child {
-	margin-top: 0;
 }
 .md-body h2 {
 	padding-left: 10px;
@@ -728,7 +934,7 @@ svg.lucide {
 	align-items: center;
 	justify-content: center;
 	gap: 6px;
-	height: 120px;
+	height: 110px;
 	border-radius: 10px;
 	background: var(--be-weak);
 	border: 1px dashed var(--be-border);
@@ -751,11 +957,9 @@ svg.lucide {
 	font-size: 12.5px;
 	flex: none;
 }
-
 .banner[hidden] {
 	display: none;
 }
-
 .banner button {
 	border: none;
 	background: transparent;
@@ -771,7 +975,7 @@ svg.lucide {
 	display: flex;
 	align-items: center;
 	gap: 9px;
-	padding: 9px 14px calc(10px + env(safe-area-inset-bottom));
+	padding: 9px 16px calc(10px + env(safe-area-inset-bottom));
 	border-top: 1px solid var(--be-border);
 	background: var(--be-screen);
 	flex: none;
@@ -784,21 +988,22 @@ svg.lucide {
 	font: inherit;
 	font-size: 13.5px;
 	border-radius: 11px;
-	padding: 10px 15px;
+	padding: 9px 14px;
 	display: flex;
 	align-items: center;
 	gap: 7px;
 	cursor: pointer;
+	transition: all 0.15s;
 }
-
+.ghost-btn:hover {
+	border-color: var(--be-primary);
+	color: var(--be-primary);
+}
 .ghost-btn i,
 .ghost-btn svg {
 	width: 16px;
 	height: 16px;
 	color: var(--be-primary);
-}
-.ghost-btn:disabled {
-	opacity: 0.6;
 }
 
 .save-hint {
@@ -808,11 +1013,6 @@ svg.lucide {
 	display: flex;
 	align-items: center;
 	gap: 5px;
-}
-.save-hint i,
-.save-hint svg {
-	width: 14px;
-	height: 14px;
 }
 .save-hint.ok {
 	color: var(--be-green);
@@ -824,38 +1024,35 @@ svg.lucide {
 	animation: be-spin 0.8s linear infinite;
 }
 
-/* ---------- 弹窗 / 提示 ---------- */
+/* ---------- 弹窗与选择器 ---------- */
 
 .overlay {
 	position: absolute;
 	inset: 0;
-	background: rgba(10, 9, 16, 0.45);
+	background: rgba(12, 22, 32, 0.5);
 	display: flex;
 	align-items: flex-end;
 	justify-content: center;
 	z-index: 30;
 	padding: 0;
 }
-
 @media (min-width: 560px) {
 	.overlay {
 		align-items: center;
 	}
 }
-
 .overlay[hidden] {
 	display: none;
 }
 
 .dlg {
 	width: 100%;
-	max-width: 460px;
+	max-width: 480px;
 	background: var(--be-card);
-	border-radius: 20px 20px 0 0;
-	padding: 20px 20px calc(20px + env(safe-area-inset-bottom));
+	border-radius: 22px 22px 0 0;
+	padding: 22px 20px calc(20px + env(safe-area-inset-bottom));
 	box-shadow: var(--be-shadow);
 }
-
 @media (min-width: 560px) {
 	.dlg {
 		border-radius: 20px;
@@ -864,14 +1061,74 @@ svg.lucide {
 }
 
 .dlg h5 {
-	margin: 0 0 4px;
-	font-size: 16px;
-	font-weight: 500;
+	margin: 0 0 14px;
+	font-size: 17px;
+	font-weight: 600;
 }
+
+/* 类型选择器 */
+.type-selector {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	margin-bottom: 12px;
+}
+.type-card {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 11px 13px;
+	border-radius: 12px;
+	border: 1.5px solid var(--be-border);
+	background: var(--be-screen);
+	cursor: pointer;
+	transition: all 0.15s;
+}
+.type-card input {
+	display: none;
+}
+.type-card .tc-icon {
+	width: 36px;
+	height: 36px;
+	border-radius: 10px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: var(--be-weak);
+	color: var(--be-sub);
+	flex: none;
+}
+.type-card[data-type="post"] .tc-icon {
+	color: var(--be-cyan);
+}
+.type-card[data-type="learning"] .tc-icon {
+	color: var(--be-indigo);
+}
+.type-card[data-type="life"] .tc-icon {
+	color: var(--be-amber);
+}
+
+.type-card .tc-text {
+	display: flex;
+	flex-direction: column;
+}
+.type-card .tc-text strong {
+	font-size: 14px;
+	color: var(--be-text);
+}
+.type-card .tc-text small {
+	font-size: 11.5px;
+	color: var(--be-sub);
+}
+.type-card.selected {
+	border-color: var(--be-primary);
+	background: color-mix(in srgb, var(--be-primary) 8%, var(--be-card));
+}
+
 .dlg-actions {
 	display: flex;
 	gap: 10px;
-	margin-top: 18px;
+	margin-top: 20px;
 }
 .dlg-actions .pill-btn {
 	flex: 1;
@@ -884,10 +1141,10 @@ svg.lucide {
 	left: 50%;
 	bottom: 96px;
 	transform: translateX(-50%) translateY(14px);
-	background: light-dark(#232030, #f0edfa);
-	color: light-dark(#f0edfa, #232030);
-	font-size: 13px;
-	padding: 11px 17px;
+	background: light-dark(#1f2f3d, #e2edf5);
+	color: light-dark(#f0f6fa, #12212f);
+	font-size: 13.5px;
+	padding: 10px 18px;
 	border-radius: 999px;
 	white-space: nowrap;
 	max-width: calc(100% - 32px);
@@ -904,14 +1161,8 @@ svg.lucide {
 	z-index: 50;
 	box-shadow: var(--be-shadow);
 }
-
 .toast[hidden] {
 	display: none;
-}
-.toast i,
-.toast svg {
-	width: 15px;
-	height: 15px;
 }
 .toast.show {
 	opacity: 1;

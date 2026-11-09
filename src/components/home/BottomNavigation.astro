@@ -1,71 +1,179 @@
 ---
+import { Icon } from "astro-icon/components";
 import { url } from "@utils/url-utils";
 
 const year = new Date().getFullYear();
-/* 随笔入口：复用 Fuwari 归档页的分类过滤（ArchivePanel 读取 ?category= 查询参数） */
 const postsUrl = url("/archive/?category=随笔");
+
+const cards = [
+    {
+        title: "学习理解",
+        tag: "Learning & Concepts",
+        desc: "学习中的思考与感悟",
+        href: url("/learning/"),
+        actionText: "查看学习笔记",
+        icon: "material-symbols:school",
+        isCenter: false,
+        colorClass: {
+            container: "bg-pink-500 dark:bg-tertiary-container text-white dark:text-on-tertiary-container shadow-[0_0_15px_rgba(255,149,227,0.4)]",
+            ambient: "bg-tertiary/20 group-hover:bg-tertiary/40",
+            hoverBorder: "hover:border-pink-500/60 dark:hover:border-tertiary/70",
+            hoverShadow: "hover:shadow-[0_12px_40px_rgba(255,149,227,0.25)] dark:hover:shadow-[0_0_35px_rgba(255,149,227,0.35)]",
+            textAction: "text-pink-600 dark:text-tertiary",
+        },
+    },
+    {
+        title: "随笔",
+        tag: "Essays & Dispatches",
+        desc: "一些突如其来的想法",
+        href: postsUrl,
+        actionText: "阅读随笔",
+        icon: "material-symbols:article",
+        isCenter: true,
+        colorClass: {
+            container: "bg-indigo-600 dark:bg-primary-container text-white dark:text-on-primary-container shadow-[0_0_20px_rgba(137,153,255,0.5)]",
+            ambient: "bg-primary/25 group-hover:bg-primary/50",
+            hoverBorder: "hover:border-indigo-500/70 dark:hover:border-primary/80",
+            hoverShadow: "hover:shadow-[0_16px_50px_rgba(137,153,255,0.35)] dark:hover:shadow-[0_0_45px_rgba(137,153,255,0.45)]",
+            textAction: "text-indigo-600 dark:text-primary",
+        },
+    },
+    {
+        title: "生活记录",
+        tag: "Life & Moments",
+        desc: "生活点点滴滴",
+        href: url("/life/"),
+        actionText: "浏览生活",
+        icon: "material-symbols:favorite",
+        isCenter: false,
+        colorClass: {
+            container: "bg-purple-600 dark:bg-secondary-container text-white dark:text-on-secondary-container shadow-[0_0_15px_rgba(152,145,255,0.4)]",
+            ambient: "bg-secondary/20 group-hover:bg-secondary/40",
+            hoverBorder: "hover:border-purple-500/60 dark:hover:border-secondary/70",
+            hoverShadow: "hover:shadow-[0_12px_40px_rgba(152,145,255,0.25)] dark:hover:shadow-[0_0_35px_rgba(152,145,255,0.35)]",
+            textAction: "text-purple-600 dark:text-secondary",
+        },
+    },
+];
 ---
 
-<nav class="bottom-nav" aria-label="栏目导航">
-    <a class="chip" href={postsUrl}>随笔</a>
-    <a class="chip" href={url("/learning/")}>学习理解</a>
-    <a class="chip" href={url("/life/")}>生活记录</a>
-</nav>
+<section class="max-w-6xl mx-auto px-6 py-6 md:py-10 w-full relative z-10" aria-label="栏目导航">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-7 items-center">
+        {
+            cards.map((card) => (
+                <div class={card.isCenter ? "md:scale-[1.05] md:-translate-y-2 z-20" : "z-10"}>
+                    <a
+                        class={`tilt-card group relative rounded-2xl md:rounded-3xl bg-white/70 dark:bg-surface-container/85 backdrop-blur-xl flex flex-col gap-3.5 hover:bg-white/90 dark:hover:bg-surface-container-high border border-slate-200/80 dark:border-white/10 shadow-lg dark:shadow-[0_8px_32px_rgba(0,0,0,0.3)] overflow-hidden cursor-pointer ${
+                            card.isCenter
+                                ? "p-7 md:p-8 md:py-8.5 ring-1 ring-indigo-500/10 dark:ring-primary/20 shadow-xl dark:shadow-[0_12px_40px_rgba(0,0,0,0.4)]"
+                                : "p-6 md:p-7"
+                        } ${card.colorClass.hoverBorder} ${card.colorClass.hoverShadow}`}
+                        href={card.href}
+                        style="transform: perspective(1000px) rotateX(0deg) rotateY(0deg) translateY(0px);"
+                    >
+                        <!-- 内部微光渐变底层 -->
+                        <div class="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent dark:from-white/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+                        <!-- 右上角弥散光斑 -->
+                        <div class={`absolute -top-24 -right-24 rounded-full blur-2xl transition-all pointer-events-none opacity-50 group-hover:opacity-100 ${
+                            card.isCenter ? "w-56 h-56" : "w-48 h-48"
+                        } ${card.colorClass.ambient}`} />
 
-<p class="copyright">© Qiulin · {year}</p>
+                        <!-- 图标徽章 -->
+                        <div class={`rounded-xl flex items-center justify-center transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3 ${
+                            card.isCenter ? "w-12 h-12" : "w-11 h-11"
+                        } ${card.colorClass.container}`}>
+                            <Icon name={card.icon} class={card.isCenter ? "text-[1.75rem]" : "text-2xl"} />
+                        </div>
+
+                        <!-- 标题与英文标签 -->
+                        <div class="flex flex-col">
+                            <h2 class={`font-semibold text-slate-900 dark:text-on-surface tracking-tight group-hover:text-indigo-600 dark:group-hover:text-primary transition-colors ${
+                                card.isCenter ? "text-2xl md:text-[1.65rem]" : "text-xl md:text-2xl"
+                            }`}>
+                                {card.title}
+                            </h2>
+                            <span class="text-xs font-mono text-slate-400 dark:text-on-surface-variant/70 mt-0.5">
+                                {card.tag}
+                            </span>
+                        </div>
+
+                        <!-- 描述内容 -->
+                        <p class={`text-slate-600 dark:text-on-surface-variant leading-relaxed line-clamp-2 ${
+                            card.isCenter ? "text-sm md:text-[0.9375rem]" : "text-sm"
+                        }`}>
+                            {card.desc}
+                        </p>
+
+                        <!-- 底部悬浮展开链接 -->
+                        <div class={`mt-auto pt-3 border-t border-slate-200/60 dark:border-white/5 flex items-center text-xs font-semibold gap-1.5 transition-all duration-300 ${card.colorClass.textAction}`}>
+                            <span>{card.actionText}</span>
+                            <Icon name="material-symbols:arrow-forward" class="text-base transition-transform duration-200 group-hover:translate-x-1" />
+                        </div>
+                    </a>
+                </div>
+            ))
+        }
+    </div>
+
+    <!-- 底部版权与极简元信息 -->
+    <footer class="mt-12 mb-6 text-center text-xs text-slate-500 dark:text-on-surface-variant/80">
+        <p>© Qiulin · {year}. All rights reserved.</p>
+    </footer>
+</section>
 
 <style>
-    .bottom-nav {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 0.75rem;
-        padding: 0 0.5rem;
-        margin-top: auto;
-    }
-
-    .chip {
-        display: inline-flex;
-        align-items: center;
-        padding: 0.55rem 1.35rem;
-        border-radius: 999px;
-        background: var(--sp-chip);
-        border: 1px solid var(--sp-line);
-        color: var(--sp-sub);
-        font-size: 0.875rem;
-        font-weight: 500;
-        text-decoration: none;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
-        transition:
-            color 0.2s ease,
-            border-color 0.2s ease,
-            transform 0.2s ease,
-            box-shadow 0.2s ease;
-    }
-
-    .chip:hover,
-    .chip:focus-visible {
-        color: var(--sp-accent-strong);
-        border-color: var(--sp-accent);
-        transform: translateY(-1px);
-        box-shadow: 0 4px 10px -2px rgba(45, 72, 93, 0.12);
-    }
-
-    :global(.dark) .chip:hover,
-    :global(.dark) .chip:focus-visible {
-        box-shadow: 0 4px 10px -2px rgba(0, 0, 0, 0.35);
-    }
-
-    .chip:active {
-        transform: translateY(1px);
-    }
-
-    .copyright {
-        margin: 1.5rem 0 0;
-        padding-bottom: max(2rem, env(safe-area-inset-bottom));
-        text-align: center;
-        font-size: 0.75rem;
-        color: var(--sp-sub);
-        opacity: 0.85;
+    .tilt-card {
+        transform-style: preserve-3d;
+        will-change: transform;
+        transition: transform 0.15s ease-out, border-color 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
     }
 </style>
+
+<script>
+    function setupTiltCards() {
+        const cards = document.querySelectorAll<HTMLElement>('.tilt-card');
+        if (!cards.length) return;
+
+        cards.forEach((card) => {
+            if (card.dataset.tiltActive === 'true') return;
+            card.dataset.tiltActive = 'true';
+
+            let bounds: DOMRect | null = null;
+
+            card.addEventListener('mouseenter', () => {
+                bounds = card.getBoundingClientRect();
+                card.style.transition = 'none';
+            });
+
+            card.addEventListener('mousemove', (e: MouseEvent) => {
+                if (!bounds) bounds = card.getBoundingClientRect();
+                const x = e.clientX - bounds.left;
+                const y = e.clientY - bounds.top;
+                const xc = bounds.width / 2;
+                const yc = bounds.height / 2;
+                const dx = x - xc;
+                const dy = y - yc;
+                card.style.transform = `perspective(1000px) rotateX(${-dy / 10}deg) rotateY(${dx / 10}deg) translateY(-8px)`;
+            });
+
+            card.addEventListener('mouseleave', () => {
+                bounds = null;
+                card.style.transition = 'transform 0.5s cubic-bezier(0.16, 1, 0.3, 1)';
+                card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) translateY(0px)';
+            });
+        });
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', setupTiltCards);
+    } else {
+        setupTiltCards();
+    }
+
+    // Swup 页面回退重绑
+    document.addEventListener('swup:page:view', () => {
+        const cards = document.querySelectorAll<HTMLElement>('.tilt-card');
+        cards.forEach((c) => delete c.dataset.tiltActive);
+        setupTiltCards();
+    });
+</script>
