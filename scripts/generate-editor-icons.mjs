@@ -1,12 +1,13 @@
-/* 生成手机编辑器（public/editor）的 PWA 图标：紫底白色羽毛笔 */
+/* 生成手机编辑器（public/editor）的 PWA 图标：淡蓝底白色羽毛笔
+   （渐变与应用内授权页图标一致：linear-gradient(135deg, #7197b2, #4c7189)） */
 import sharp from "sharp";
 
 const size = 512;
 const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#7b5bf2"/>
-      <stop offset="1" stop-color="#5636c9"/>
+      <stop offset="0" stop-color="#7197b2"/>
+      <stop offset="1" stop-color="#4c7189"/>
     </linearGradient>
   </defs>
   <rect width="${size}" height="${size}" rx="112" fill="url(#bg)"/>

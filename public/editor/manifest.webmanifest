@@ -1,14 +1,14 @@
 {
-	"name": "myblog",
+	"name": "myblog 编辑器",
 	"short_name": "myblog",
-	"description": "随时随地写文章、传图片，保存即发布到博客",
+	"description": "随时随地写文章、记生活、传图片，保存即发布到博客",
 	"lang": "zh-CN",
 	"start_url": "./index.html",
 	"scope": "./",
 	"display": "standalone",
 	"orientation": "portrait",
-	"background_color": "#17161e",
-	"theme_color": "#6d4df0",
+	"background_color": "#111820",
+	"theme_color": "#4c7189",
 	"icons": [
 		{
 			"src": "./icon-192.png",
