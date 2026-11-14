@@ -845,7 +845,7 @@
 
 	/* ---------- 保存 ---------- */
 
-	$("btn-save").addEventListener("click", () => {
+	function saveCurrent() {
 		if (state.saving || !state.current) return;
 		var p = state.current;
 		readForm(p);
@@ -900,8 +900,15 @@
 				toast(
 					isNew ? "已提交，约 1 分钟后线上生效" : "已保存，约 1 分钟后线上生效",
 				);
+				/* 快记流程：发布成功直接回列表 */
+				if (state.quickSave) {
+					state.quickSave = false;
+					state.current = null;
+					loadList();
+				}
 			})
 			.catch((e) => {
+				state.quickSave = false;
 				setHint("dirty");
 				if (e.kind === "auth") {
 					$("f-token").value = state.token || "";
@@ -913,6 +920,10 @@
 				state.saving = false;
 				$("btn-save").disabled = false;
 			});
+	}
+
+	$("btn-save").addEventListener("click", () => {
+		saveCurrent();
 	});
 
 	/* ---------- 删除 ---------- */
@@ -1328,6 +1339,40 @@
 		return /^[a-z0-9][a-z0-9-]*$/.test(t) ? t : "post-" + today();
 	}
 
+	/* 一句话快记：取正文前 20 个字当标题（去掉 Markdown 符号；避免把 emoji 切成半截） */
+	function quickTitle(body) {
+		var t = body
+			.replace(/[#>*`~[\]()!_-]/g, " ")
+			.replace(/\s+/g, " ")
+			.trim();
+		if (!t) return "";
+		if (t.length > 20) {
+			var cut = t.slice(0, 20);
+			var c = cut.charCodeAt(19);
+			if (c >= 0xd800 && c <= 0xdbff) cut = cut.slice(0, 19);
+			t = cut + "…";
+		}
+		return t;
+	}
+
+	/* 快记的 slug：note-日期-时分，撞名自动加后缀 */
+	function uniqueSlug(base) {
+		var slug = base;
+		var n = 2;
+		while (state.posts.some((p) => p.slug === slug)) {
+			slug = base + "-" + n++;
+		}
+		return slug;
+	}
+
+	function hhmm() {
+		var d = new Date();
+		return (
+			String(d.getHours()).padStart(2, "0") +
+			String(d.getMinutes()).padStart(2, "0")
+		);
+	}
+
 	var slugEdited = false;
 
 	function currentNewType() {
@@ -1352,8 +1397,19 @@
 				c.classList.toggle("selected", c.getAttribute("data-type") === type);
 			},
 		);
+		var quick = type === "quick";
+		$("dlg-title-field").hidden = quick;
+		$("dlg-slug-field").hidden = quick;
+		$("dlg-quick-field").hidden = !quick;
 		$("dlg-lbl-title").textContent = type === "life" ? "标题（可选）" : "标题";
-		updateSlugDemo();
+		var createBtn = $("btn-new-create");
+		var label = quick ? "直接发布" : "开始撰写";
+		if (createBtn.textContent.slice(-4) !== label) {
+			createBtn.innerHTML =
+				'<i data-lucide="' + (quick ? "cloud-upload" : "check") + '"></i>' + label;
+			icons();
+		}
+		if (!quick) updateSlugDemo();
 	}
 
 	$("new-type-selector").addEventListener("change", syncNewTypeUI);
@@ -1361,6 +1417,7 @@
 	function openNewDialog() {
 		$("f-new-title").value = "";
 		$("f-new-slug").value = "";
+		$("f-quick-body").value = "";
 		slugEdited = false;
 		var postRadio = document.querySelector(
 			'#new-type-selector input[value="post"]',
@@ -1387,9 +1444,60 @@
 
 	$("btn-new-create").addEventListener("click", () => {
 		var type = currentNewType();
+		hideErr($("new-error"));
+		/* 一句话快记：标题/slug 全自动，直接发布，保存成功后回到列表 */
+		if (type === "quick") {
+			var bodyText = $("f-quick-body").value.trim();
+			if (!bodyText) {
+				showErr($("new-error"), "先写一句话吧");
+				return;
+			}
+			var noteSlug = uniqueSlug(
+				"note-" + today().replace(/-/g, "") + "-" + hhmm(),
+			);
+			var p = {
+				slug: noteSlug,
+				path: CONFIG.dirs.post + noteSlug + "/index.md",
+				isDir: true,
+				type: "post",
+				title: quickTitle(bodyText) || "快记 " + today(),
+				date: today(),
+				draft: false,
+				description: "",
+				tags: [],
+				category: "随笔",
+				photos: [],
+				attrs: {},
+				lists: {},
+				order: [],
+				body: bodyText + "\n",
+				sha: null,
+			};
+			$("dlg-new").hidden = true;
+			openPost(p);
+			state.quickSave = true;
+			if (state.demo) {
+				/* 演示模式：不调用 loadList（会重建模拟数据），直接把快记插进列表 */
+				state.quickSave = false;
+				state.dirty = false;
+				setHint("saved");
+				toast("演示模式：快记已记录");
+				state.current = null;
+				state.posts.push(p);
+				state.posts.sort(
+					(a, b) =>
+						(b.date || "").localeCompare(a.date || "") ||
+						a.slug.localeCompare(b.slug),
+				);
+				showScreen("list");
+				renderList();
+			} else {
+				saveCurrent();
+			}
+			return;
+		}
 		var title = $("f-new-title").value.trim();
 		var slug = $("f-new-slug").value.trim();
-		hideErr($("new-error"));
 		if (type !== "life" && !title) {
 			showErr($("new-error"), "请填写标题");
 			return;

@@ -186,6 +186,14 @@
 						<small>图文瞬间、日常随感与多图相册</small>
 					</div>
 				</label>
+				<label class="type-card" data-type="quick">
+					<input type="radio" name="new-type" value="quick">
+					<div class="tc-icon"><i data-lucide="zap"></i></div>
+					<div class="tc-text">
+						<strong>一句话快记 (Quick)</strong>
+						<small>只写一句话，标题自动生成、直接发布</small>
+					</div>
+				</label>
 			</div>
 
 			<div class="field" id="dlg-title-field">
@@ -197,6 +205,12 @@
 				<label for="f-new-slug">链接文件名（slug）</label>
 				<input class="input" id="f-new-slug" type="text" placeholder="my-new-entry" spellcheck="false" autocomplete="off">
 				<small id="slug-tip">路径：<code id="slug-demo">/posts/…/</code></small>
+			</div>
+
+			<div class="field" id="dlg-quick-field" hidden>
+				<label for="f-quick-body">此刻想记点什么</label>
+				<textarea class="textarea" id="f-quick-body" rows="4" placeholder="一句话即可，写完点「直接发布」"></textarea>
+				<small>标题自动取前 20 个字，分类为「随笔」，直接发布</small>
 			</div>
 
 			<div class="error" id="new-error" hidden></div>

@@ -1053,6 +1053,8 @@ svg.lucide {
 .dlg {
 	width: 100%;
 	max-width: 480px;
+	max-height: calc(100dvh - 40px);
+	overflow-y: auto;
 	background: var(--be-card);
 	border-radius: 22px 22px 0 0;
 	padding: 22px 20px calc(20px + env(safe-area-inset-bottom));
@@ -1111,6 +1113,9 @@ svg.lucide {
 }
 .type-card[data-type="life"] .tc-icon {
 	color: var(--be-amber);
+}
+.type-card[data-type="quick"] .tc-icon {
+	color: var(--be-green);
 }
 
 .type-card .tc-text {
