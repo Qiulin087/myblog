@@ -1,6 +1,6 @@
 /* 博客编辑器离线缓存：缓存编辑器自身资源（cache-first），
    页面导航走 network-first 以便尽快拿到更新版本；绝不拦截/缓存 GitHub API 请求。 */
-const CACHE = "blog-editor-shell-v2";
+const CACHE = "blog-editor-shell-v3";
 const ASSETS = [
 	"./",
 	"./index.html",

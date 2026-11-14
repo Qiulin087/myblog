@@ -18,6 +18,12 @@ const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${s
   </g>
 </svg>`;
 
-await sharp(Buffer.from(svg)).resize(512, 512).png().toFile("public/editor/icon-512.png");
-await sharp(Buffer.from(svg)).resize(192, 192).png().toFile("public/editor/icon-192.png");
+await sharp(Buffer.from(svg))
+	.resize(512, 512)
+	.png()
+	.toFile("public/editor/icon-512.png");
+await sharp(Buffer.from(svg))
+	.resize(192, 192)
+	.png()
+	.toFile("public/editor/icon-192.png");
 console.log("icons generated");

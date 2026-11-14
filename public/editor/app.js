@@ -5,7 +5,12 @@
 		owner: "Qiulin087",
 		repo: "myblog",
 		branch: "main",
-		postsDir: "src/content/posts/",
+		/* 三类内容各自的目录（与 src/content.config.ts 的三个集合对应） */
+		dirs: {
+			post: "src/content/posts/",
+			learning: "src/content/learning/",
+			life: "src/content/life/",
+		},
 		/* 网页版部署在博客同域名下，直接取当前地址（换平台/绑域名自动跟随）；
 		   APK 内是 file://，取不到真实域名，回退到写死值（换域名时更新这里并重新构建 APK） */
 		siteUrl:
@@ -13,6 +18,8 @@
 				? location.origin + "/"
 				: "https://myblog-qiulin1.vercel.app/",
 	};
+
+	var TYPE_LABELS = { post: "随笔", learning: "学习理解", life: "生活记录" };
 
 	var API = "https://api.github.com";
 	var LS_TOKEN = "be:token";
@@ -176,41 +183,68 @@
 
 	function parseFrontmatter(raw) {
 		var m = /^---\r?\n([\s\S]*?)\r?\n---(\r?\n|$)/.exec(raw);
-		if (!m) return { attrs: {}, order: [], body: raw };
+		if (!m) return { attrs: {}, lists: {}, order: [], body: raw };
 		var attrs = {},
-			order = [];
+			lists = {},
+			order = [],
+			lastKey = null;
 		m[1].split(/\r?\n/).forEach((line) => {
 			var t = line.trim();
 			if (!t || t.charAt(0) === "#") return;
+			var item = /^-\s+(.*)$/.exec(t);
+			if (item && lastKey) {
+				if (!lists[lastKey]) lists[lastKey] = [];
+				lists[lastKey].push(unq(item[1]));
+				return;
+			}
 			var mm = /^([A-Za-z_][\w-]*)\s*:\s*(.*)$/.exec(t);
 			if (!mm) return;
 			attrs[mm[1]] = mm[2];
 			order.push(mm[1]);
+			lastKey = mm[1];
 		});
-		return { attrs: attrs, order: order, body: raw.slice(m[0].length) };
+		return {
+			attrs: attrs,
+			lists: lists,
+			order: order,
+			body: raw.slice(m[0].length),
+		};
 	}
 
-	var MANAGED = [
-		"title",
-		"published",
-		"description",
-		"tags",
-		"category",
-		"draft",
-	];
-	var MANAGED_SET = new Set(MANAGED);
+	/* 各类型 frontmatter 中由表单托管的键；其余键（如 lang）原样保留 */
+	var MANAGED = {
+		post: ["title", "published", "description", "tags", "category", "draft"],
+		learning: ["title", "published", "description", "draft"],
+		life: ["published", "title", "photos", "draft"],
+	};
 
-	function buildPostFile(p) {
-		var lines = [
-			"title: " + qv(p.title),
-			"published: " + (p.date || today()),
-			"description: " + qv(p.description),
-		];
+	function buildFile(p) {
+		var lines = [];
+		if (p.type === "life") {
+			lines.push("published: " + (p.date || today()));
+			if (p.title) lines.push("title: " + qv(p.title));
+			if (p.photos && p.photos.length) {
+				lines.push("photos:");
+				p.photos.forEach((src) => lines.push("  - " + qv(src)));
+			}
+		} else {
+			lines.push("title: " + qv(p.title));
+			lines.push("published: " + (p.date || today()));
+			lines.push("description: " + qv(p.description));
+		}
 		(p.order || []).forEach((k) => {
-			if (!MANAGED_SET.has(k)) lines.push(k + ": " + p.attrs[k]);
+			if (MANAGED[p.type].indexOf(k) >= 0) return;
+			if (p.lists && Object.prototype.hasOwnProperty.call(p.lists, k)) {
+				lines.push(k + ":");
+				p.lists[k].forEach((v) => lines.push("  - " + qv(v)));
+			} else {
+				lines.push(k + ": " + p.attrs[k]);
+			}
 		});
-		lines.push("tags: [" + p.tags.map(qv).join(", ") + "]");
-		lines.push("category: " + qv(p.category));
+		if (p.type === "post") {
+			lines.push("tags: [" + p.tags.map(qv).join(", ") + "]");
+			lines.push("category: " + qv(p.category));
+		}
 		lines.push("draft: " + (p.draft ? "true" : "false"));
 		return "---\n" + lines.join("\n") + "\n---\n" + p.body;
 	}
@@ -221,6 +255,7 @@
 		token: localStorage.getItem(LS_TOKEN) || "",
 		demo: new URLSearchParams(location.search).has("demo"),
 		posts: [],
+		filter: "all",
 		current: null,
 		serverBody: "",
 		dirty: false,
@@ -326,15 +361,15 @@
 			prep = Promise.resolve().then(demoTree);
 		} else {
 			prep = gh(
-				"/repos/" +
-					CONFIG.owner +
-					"/" +
-					CONFIG.repo +
-					"/git/trees/" +
-					CONFIG.branch +
-					"?recursive=1",
-			).then((tree) => {
-				var entries = collectPosts(tree);
+					"/repos/" +
+						CONFIG.owner +
+						"/" +
+						CONFIG.repo +
+						"/git/trees/" +
+						CONFIG.branch +
+						"?recursive=1",
+				).then((tree) => {
+					var entries = collectEntries(tree);
 				return mapLimit(entries, 6, (post) =>
 					gh(
 						"/repos/" +
@@ -381,21 +416,37 @@
 		icons();
 	}
 
-	function collectPosts(tree) {
-		var dir = CONFIG.postsDir;
+	/* Fuwari 主题自带的模板文章（日期均早于第一篇正式文章《开始》2026-09-03），
+	   编辑器列表不再显示；文件仍保留在仓库中 */
+	var HIDDEN_SLUGS = new Set([
+		"draft",
+		"expressive-code",
+		"guide",
+		"markdown",
+		"markdown-extended",
+		"video",
+	]);
+
+	function collectEntries(tree) {
 		var found = new Map();
-		(tree.tree || []).forEach((item) => {
-			if (item.type !== "blob") return;
-			if (item.path.indexOf(dir) !== 0) return;
-			var rel = item.path.slice(dir.length);
-			var m = /^(.*)\/index\.md$/.exec(rel);
-			if (m) {
-				found.set(m[1], { slug: m[1], path: item.path, isDir: true });
-			} else if (/\.md$/.test(rel)) {
-				var slug = rel.slice(0, -3);
-				if (!found.has(slug))
-					found.set(slug, { slug: slug, path: item.path, isDir: false });
-			}
+		Object.keys(CONFIG.dirs).forEach((type) => {
+			var dir = CONFIG.dirs[type];
+			(tree.tree || []).forEach((item) => {
+				if (item.type !== "blob") return;
+				if (item.path.indexOf(dir) !== 0) return;
+				var rel = item.path.slice(dir.length);
+				var m = /^(.*)\/index\.md$/.exec(rel);
+				var slug = m ? m[1] : /\.md$/.test(rel) ? rel.slice(0, -3) : null;
+				if (!slug || HIDDEN_SLUGS.has(slug)) return;
+				var key = type + "/" + slug;
+				if (!found.has(key))
+					found.set(key, {
+						slug: slug,
+						path: item.path,
+						isDir: !!m,
+						type: type,
+					});
+			});
 		});
 		var arr = [];
 		found.forEach((v) => {
@@ -405,7 +456,9 @@
 			v.description = "";
 			v.tags = [];
 			v.category = "";
+			v.photos = [];
 			v.attrs = {};
+			v.lists = {};
 			v.order = [];
 			v.body = "";
 			arr.push(v);
@@ -417,26 +470,75 @@
 		var fm = parseFrontmatter(raw);
 		post.raw = raw;
 		post.attrs = fm.attrs;
+		post.lists = fm.lists;
 		post.order = fm.order;
 		post.body = fm.body;
-		post.title = unq(fm.attrs.title) || post.slug;
 		post.date = unq(fm.attrs.published).slice(0, 10);
 		post.draft = unq(fm.attrs.draft) === "true";
-		post.description = unq(fm.attrs.description);
-		post.tags = parseTags(fm.attrs.tags);
-		post.category = unq(fm.attrs.category);
+		if (post.type === "life") {
+			post.title = unq(fm.attrs.title);
+			post.description = "";
+			post.tags = [];
+			post.category = "";
+			post.photos = fm.lists.photos || [];
+		} else {
+			post.title = unq(fm.attrs.title) || post.slug;
+			post.description = unq(fm.attrs.description);
+			post.tags = parseTags(fm.attrs.tags);
+			post.category = unq(fm.attrs.category);
+			post.photos = [];
+		}
 	}
 
+	function updateCounts() {
+		var n = { all: state.posts.length, post: 0, learning: 0, life: 0 };
+		state.posts.forEach((p) => {
+			if (n[p.type] !== undefined) n[p.type]++;
+		});
+		$("count-all").textContent = n.all;
+		$("count-post").textContent = n.post;
+		$("count-learning").textContent = n.learning;
+		$("count-life").textContent = n.life;
+	}
+
+	function setFilter(f) {
+		state.filter = f;
+		Array.prototype.forEach.call(
+			document.querySelectorAll(".f-pill"),
+			(b) => {
+				b.classList.toggle("active", b.getAttribute("data-filter") === f);
+			},
+		);
+		renderList();
+	}
+
+	Array.prototype.forEach.call(
+		document.querySelectorAll(".f-pill"),
+		(b) => {
+			b.addEventListener("click", () =>
+				setFilter(b.getAttribute("data-filter")),
+			);
+		},
+	);
+
 	function renderList() {
+		updateCounts();
 		var box = $("post-list");
-		if (!state.posts.length) {
+		var posts = state.posts.filter(
+			(p) => state.filter === "all" || p.type === state.filter,
+		);
+		if (!posts.length) {
 			listState(
-				'<i data-lucide="feather"></i><span>还没有文章，点下方按钮开始写第一篇</span>',
+				'<i data-lucide="feather"></i><span>' +
+					(state.filter === "all"
+						? "还没有内容，点下方按钮开始写第一篇"
+						: "这个分类还没有内容") +
+					"</span>",
 			);
 			return;
 		}
 		box.innerHTML = "";
-		state.posts.forEach((p) => {
+		posts.forEach((p) => {
 			var b = document.createElement("button");
 			b.type = "button";
 			b.className = "post";
@@ -445,9 +547,11 @@
 				(p.draft ? "draft" : "pub") +
 				'"></span>' +
 				'<span class="p-main"><span class="p-title">' +
-				esc(p.title) +
+				esc(p.title || p.slug) +
 				"</span>" +
 				'<span class="p-meta">' +
+				esc(TYPE_LABELS[p.type] || "") +
+				" · " +
 				esc(p.date || "未填日期") +
 				" · <em" +
 				(p.draft ? ' class="draft"' : "") +
@@ -499,7 +603,8 @@
 	}
 
 	function readForm(p) {
-		p.title = $("f-title").value.trim() || p.slug;
+		p.title = $("f-title").value.trim();
+		if (p.type !== "life" && !p.title) p.title = p.slug;
 		p.category = $("f-cat").value.trim();
 		p.tags = $("f-tags")
 			.value.split(",")
@@ -522,10 +627,19 @@
 			draft: p.draft,
 			date: p.date,
 			body: p.body,
+			photos: (p.photos || []).slice(),
 		};
-		$("edit-title").textContent = p.title;
-		$("edit-state").textContent =
-			"正在编辑 · " + p.path.replace(CONFIG.postsDir, "");
+		/* 按类型显隐表单区块 */
+		$("edit-type-badge").textContent = TYPE_LABELS[p.type] || "内容";
+		$("field-post-meta").hidden = p.type !== "post";
+		$("field-desc-wrap").hidden = p.type === "life";
+		$("lbl-title").textContent = p.type === "life" ? "标题（可选）" : "标题";
+		$("section-life-photos").hidden = p.type !== "life";
+		$("btn-img").querySelector("span").textContent =
+			p.type === "life" ? "添加照片" : "插入配图";
+		var strip = CONFIG.dirs[p.type] || "";
+		$("edit-title").textContent = p.title || p.slug;
+		$("edit-state").textContent = "正在编辑 · " + p.path.replace(strip, "");
 		fillForm(p);
 		hideErr($("auth-error"));
 		$("draft-banner").hidden = true;
@@ -543,6 +657,7 @@
 					p.draft = d.draft;
 					p.date = d.date;
 					p.body = d.body;
+					p.photos = d.photos || [];
 					fillForm(p);
 					state.dirty = true;
 					setHint("dirty");
@@ -552,6 +667,7 @@
 				/* 忽略损坏的本地草稿 */
 			}
 		}
+		renderPhotoGrid();
 		showScreen("edit");
 		switchTab("write");
 		icons();
@@ -572,6 +688,7 @@
 					draft: p.draft,
 					date: p.date,
 					body: p.body,
+					photos: p.photos || [],
 					at: Date.now(),
 				}),
 			);
@@ -606,7 +723,9 @@
 		p.draft = s.draft;
 		p.date = s.date;
 		p.body = s.body;
+		p.photos = (s.photos || []).slice();
 		fillForm(p);
+		renderPhotoGrid();
 		state.dirty = false;
 		setHint("saved");
 		$("draft-banner").hidden = true;
@@ -730,7 +849,7 @@
 		if (state.saving || !state.current) return;
 		var p = state.current;
 		readForm(p);
-		if (!p.title || (p.title === p.slug && !$("f-title").value.trim())) {
+		if (p.type !== "life" && !$("f-title").value.trim()) {
 			toast("请先填写标题");
 			$("f-title").focus();
 			return;
@@ -746,10 +865,12 @@
 		setHint("busy");
 		var isNew = !p.sha;
 		var msg =
-			(isNew ? "post: 新增《" : "post: 编辑《") + p.title + "》（手机端）";
+			(isNew ? p.type + ": 新增《" : p.type + ": 编辑《") +
+			(p.title || p.slug) +
+			"》（手机端）";
 		var body = {
 			message: msg,
-			content: b64encode(buildPostFile(p)),
+			content: b64encode(buildFile(p)),
 			branch: CONFIG.branch,
 		};
 		if (p.sha) body.sha = p.sha;
@@ -768,13 +889,13 @@
 		)
 			.then((j) => {
 				p.sha = j.content.sha;
-				var raw = buildPostFile(p);
+				var raw = buildFile(p);
 				applyRaw(p, raw);
 				localStorage.removeItem(draftKey(p.path));
 				state.dirty = false;
 				setHint("saved");
 				$("edit-state").textContent =
-					"正在编辑 · " + p.path.replace(CONFIG.postsDir, "");
+					"正在编辑 · " + p.path.replace(CONFIG.dirs[p.type] || "", "");
 				if (!state.posts.some((x) => x.path === p.path)) state.posts.push(p);
 				toast(
 					isNew ? "已提交，约 1 分钟后线上生效" : "已保存，约 1 分钟后线上生效",
@@ -804,7 +925,9 @@
 		}
 		if (
 			!confirm(
-				"删除《" + p.title + "》？\n会提交一次删除记录，可在 GitHub 上回滚。",
+				"删除《" +
+					(p.title || p.slug) +
+					"》？\n会提交一次删除记录，可在 GitHub 上回滚。",
 			)
 		)
 			return;
@@ -836,7 +959,7 @@
 							method: "DELETE",
 							headers: { "Content-Type": "application/json" },
 							body: JSON.stringify({
-								message: "post: 删除 " + item.path + "（手机端）",
+								message: p.type + ": 删除 " + item.path + "（手机端）",
 								sha: item.sha,
 								branch: CONFIG.branch,
 							}),
@@ -856,7 +979,7 @@
 					method: "DELETE",
 					headers: { "Content-Type": "application/json" },
 					body: JSON.stringify({
-						message: "post: 删除《" + p.title + "》（手机端）",
+						message: p.type + ": 删除《" + (p.title || p.slug) + "》（手机端）",
 						sha: p.sha,
 						branch: CONFIG.branch,
 					}),
@@ -889,23 +1012,31 @@
 		var files = Array.prototype.slice.call(this.files || []);
 		this.value = "";
 		if (!files.length || !state.current) return;
-		ensureDirPost()
-			.then(() => mapLimit(files, 2, (f) => uploadImage(f)))
-			.catch((e) => {
-				if (e.kind === "auth") {
-					$("f-token").value = state.token || "";
-					showScreen("auth");
-					showErr($("auth-error"), e.message);
-				} else toast(e.message || "图片上传失败");
-			});
+		var p = state.current;
+		var job;
+		if (p.type === "life") {
+			job = uploadLifePhotos(files);
+		} else if (p.type === "post") {
+			job = ensureDirPost().then(() => mapLimit(files, 2, (f) => uploadImage(f)));
+		} else {
+			/* 学习理解：图片直接传到 learning/ 目录，正文以相对路径引用 */
+			job = mapLimit(files, 2, (f) => uploadImage(f));
+		}
+		job.catch((e) => {
+			if (e.kind === "auth") {
+				$("f-token").value = state.token || "";
+				showScreen("auth");
+				showErr($("auth-error"), e.message);
+			} else toast(e.message || "图片上传失败");
+		});
 	});
 
 	/* 单文件文章首次插图时转为目录形式（slug/index.md），图片才有归属 */
 	function ensureDirPost() {
 		var p = state.current;
-		if (p.isDir || state.demo) return Promise.resolve();
+		if (p.isDir || state.demo || p.type !== "post") return Promise.resolve();
 		readForm(p);
-		var newPath = CONFIG.postsDir + p.slug + "/index.md";
+		var newPath = CONFIG.dirs.post + p.slug + "/index.md";
 		var oldPath = p.path;
 		var oldSha = p.sha;
 		var msg = "post: 《" + p.title + "》转为目录形式以便配图（手机端）";
@@ -921,7 +1052,7 @@
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({
 					message: msg,
-					content: b64encode(buildPostFile(p)),
+					content: b64encode(buildFile(p)),
 					branch: CONFIG.branch,
 				}),
 			},
@@ -1007,29 +1138,36 @@
 		});
 	}
 
-	function uploadImage(file) {
-		var p = state.current;
+	/* 生成图片文件名：日期 + 时间戳 + 原名（清洗过），避免重名 */
+	function imgName(file, compressed) {
 		var base =
 			file.name
 				.replace(/\.[^.]+$/, "")
 				.replace(/[^\w\u4e00-\u9fa5-]+/g, "-")
 				.replace(/^-+|-+$/g, "") || "img";
-		var rawExt = (
-			(/\.(jpe?g|png|webp|gif|avif|bmp)$/i.exec(file.name) || [])[1] || "jpg"
-		)
-			.toLowerCase()
-			.replace("jpeg", "jpg");
+		var ext = compressed
+			? "jpg"
+			: (
+					(/\.(jpe?g|png|webp|gif|avif|bmp)$/i.exec(file.name) || [])[1] || "jpg"
+				)
+					.toLowerCase()
+					.replace("jpeg", "jpg");
+		return (
+			today().replace(/-/g, "") +
+			"-" +
+			Date.now().toString(36) +
+			"-" +
+			base +
+			"." +
+			ext
+		);
+	}
+
+	function uploadImage(file) {
+		var p = state.current;
 		return compressImage(file).then((c) => {
-			var ext = c ? "jpg" : rawExt;
-			var name =
-				today().replace(/-/g, "") +
-				"-" +
-				Date.now().toString(36) +
-				"-" +
-				base +
-				"." +
-				ext;
-			var alt = base;
+			var name = imgName(file, c);
+			var alt = name.replace(/^\d+-[a-z0-9]+-/, "").replace(/\.\w+$/, "");
 			var bytes = c ? Promise.resolve(c.bytes) : readFileBytes(file);
 			return bytes
 				.then((data) => {
@@ -1037,7 +1175,9 @@
 						insertAtCursor("\n![" + alt + "](./" + name + ")\n");
 						return null;
 					}
-					var path = CONFIG.postsDir + p.slug + "/" + name;
+					/* 图片放进当前类型的目录：随笔在文章目录下（无扩展名正文引用 ./ 名），学习理解平铺在 learning/ 下 */
+					var dir = CONFIG.dirs[p.type] || CONFIG.dirs.post;
+					var path = (p.isDir ? dir + p.slug + "/" : dir) + name;
 					return gh(
 						"/repos/" +
 							CONFIG.owner +
@@ -1050,13 +1190,20 @@
 							headers: { "Content-Type": "application/json" },
 							body: JSON.stringify({
 								message:
-									"post: 《" + p.title + "》添加配图 " + name + "（手机端）",
+									p.type +
+									": 《" +
+									(p.title || p.slug) +
+									"》添加配图 " +
+									name +
+									"（手机端）",
 								content: bytesToB64(data),
 								branch: CONFIG.branch,
 							}),
 						},
 					).then(() => {
-						insertAtCursor("\n![" + alt + "](./" + name + ")\n");
+						insertAtCursor(
+							"\n![" + alt + "](" + (p.isDir ? "./" + name : name) + ")\n",
+						);
 					});
 				})
 				.then(() => {
@@ -1069,6 +1216,95 @@
 				});
 		});
 	}
+
+	/* ---------- 生活记录照片 ---------- */
+
+	/* 照片路径是站点绝对路径（/life/xxx.jpg）；APK 内 file:// 需拼上站点地址 */
+	function photoUrl(src) {
+		if (/^https?:\/\//.test(src)) return src;
+		return CONFIG.siteUrl.replace(/\/+$/, "") + src;
+	}
+
+	function renderPhotoGrid() {
+		var p = state.current;
+		var grid = $("life-photo-grid");
+		grid.innerHTML = "";
+		var photos = (p && p.photos) || [];
+		$("photo-empty-tip").hidden = photos.length > 0;
+		photos.forEach((src, i) => {
+			var item = document.createElement("div");
+			item.className = "photo-item";
+			var img = document.createElement("img");
+			img.src = photoUrl(src);
+			img.alt = "照片 " + (i + 1);
+			img.loading = "lazy";
+			var del = document.createElement("button");
+			del.type = "button";
+			del.className = "photo-del";
+			del.setAttribute("aria-label", "移除照片");
+			del.innerHTML = '<i data-lucide="x"></i>';
+			del.addEventListener("click", () => {
+				p.photos.splice(i, 1);
+				renderPhotoGrid();
+				markDirty();
+			});
+			item.appendChild(img);
+			item.appendChild(del);
+			grid.appendChild(item);
+		});
+		icons();
+	}
+
+	/* 生活照片：压缩后上传到 public/life/，把路径追加进 photos 列表；
+	   只更新 frontmatter 引用，不删仓库里的旧图片文件（可在 GitHub 上手动清理） */
+	function uploadLifePhotos(files) {
+		var p = state.current;
+		if (!p.photos) p.photos = [];
+		return mapLimit(files, 2, (f) => {
+			return compressImage(f).then((c) => {
+				var name = imgName(f, c);
+				var bytes = c ? Promise.resolve(c.bytes) : readFileBytes(f);
+				return bytes.then((data) => {
+					if (state.demo) {
+						p.photos.push("/life/" + name);
+						return null;
+					}
+					return gh(
+						"/repos/" +
+							CONFIG.owner +
+							"/" +
+							CONFIG.repo +
+							"/contents/" +
+							encPath("public/life/" + name),
+						{
+							method: "PUT",
+							headers: { "Content-Type": "application/json" },
+							body: JSON.stringify({
+								message:
+									"life: 《" +
+									(p.title || p.slug) +
+									"》添加照片 " +
+									name +
+									"（手机端）",
+								content: bytesToB64(data),
+								branch: CONFIG.branch,
+							}),
+						},
+					).then(() => {
+						p.photos.push("/life/" + name);
+					});
+				});
+			});
+		}).then(() => {
+			renderPhotoGrid();
+			markDirty();
+			toast("照片已上传，记得点保存");
+		});
+	}
+
+	$("btn-life-add-photo").addEventListener("click", () => {
+		$("img-input").click();
+	});
 
 	function insertAtCursor(text) {
 		var ta = $("f-body");
@@ -1094,10 +1330,43 @@
 
 	var slugEdited = false;
 
+	function currentNewType() {
+		var checked = document.querySelector(
+			'#new-type-selector input[name="new-type"]:checked',
+		);
+		return (checked && checked.value) || "post";
+	}
+
+	function updateSlugDemo() {
+		var type = currentNewType();
+		var slug = $("f-new-slug").value || "…";
+		$("slug-demo").textContent =
+			type === "post" ? "/posts/" + slug + "/" : "/" + type + "/" + slug + ".md";
+	}
+
+	function syncNewTypeUI() {
+		var type = currentNewType();
+		Array.prototype.forEach.call(
+			document.querySelectorAll("#new-type-selector .type-card"),
+			(c) => {
+				c.classList.toggle("selected", c.getAttribute("data-type") === type);
+			},
+		);
+		$("dlg-lbl-title").textContent = type === "life" ? "标题（可选）" : "标题";
+		updateSlugDemo();
+	}
+
+	$("new-type-selector").addEventListener("change", syncNewTypeUI);
+
 	function openNewDialog() {
 		$("f-new-title").value = "";
 		$("f-new-slug").value = "";
 		slugEdited = false;
+		var postRadio = document.querySelector(
+			'#new-type-selector input[value="post"]',
+		);
+		if (postRadio) postRadio.checked = true;
+		syncNewTypeUI();
 		hideErr($("new-error"));
 		$("dlg-new").hidden = false;
 		$("f-new-title").focus();
@@ -1105,13 +1374,11 @@
 
 	$("f-new-title").addEventListener("input", () => {
 		if (!slugEdited) $("f-new-slug").value = slugify($("f-new-title").value);
-		$("slug-demo").textContent =
-			"/posts/" + ($("f-new-slug").value || "…") + "/";
+		updateSlugDemo();
 	});
 	$("f-new-slug").addEventListener("input", () => {
 		slugEdited = true;
-		$("slug-demo").textContent =
-			"/posts/" + ($("f-new-slug").value || "…") + "/";
+		updateSlugDemo();
 	});
 
 	$("btn-new-cancel").addEventListener("click", () => {
@@ -1119,10 +1386,11 @@
 	});
 
 	$("btn-new-create").addEventListener("click", () => {
+		var type = currentNewType();
 		var title = $("f-new-title").value.trim();
 		var slug = $("f-new-slug").value.trim();
 		hideErr($("new-error"));
-		if (!title) {
+		if (type !== "life" && !title) {
 			showErr($("new-error"), "请填写标题");
 			return;
 		}
@@ -1130,21 +1398,29 @@
 			showErr($("new-error"), "链接名只能用小写英文、数字和短横线");
 			return;
 		}
-		if (state.posts.some((p) => p.slug === slug)) {
-			showErr($("new-error"), "已存在同名文章，换一个链接名");
+		/* 随笔是目录形式（slug/index.md），学习/生活是单文件（slug.md），与仓库现有内容一致 */
+		var path =
+			type === "post"
+				? CONFIG.dirs.post + slug + "/index.md"
+				: CONFIG.dirs[type] + slug + ".md";
+		if (state.posts.some((p) => p.path === path)) {
+			showErr($("new-error"), "已存在同名内容，换一个链接名");
 			return;
 		}
 		var p = {
 			slug: slug,
-			path: CONFIG.postsDir + slug + "/index.md",
-			isDir: true,
-			title: title,
+			path: path,
+			isDir: type === "post",
+			type: type,
+			title: type === "life" ? title : title || slug,
 			date: today(),
 			draft: true,
 			description: "",
 			tags: [],
 			category: "",
+			photos: [],
 			attrs: {},
+			lists: {},
 			order: [],
 			body: "",
 			sha: null,
@@ -1157,39 +1433,35 @@
 	/* ---------- 演示模式 ---------- */
 
 	function demoTree() {
-		var mk = (slug, title, date, draft, desc, tags, cat, body) => {
+		var mk = (type, slug, title, date, draft, desc, tags, cat, body) => {
 			var p = {
 				slug: slug,
-				path: CONFIG.postsDir + slug + "/index.md",
-				isDir: true,
+				path:
+					type === "post"
+						? CONFIG.dirs.post + slug + "/index.md"
+						: CONFIG.dirs[type] + slug + ".md",
+				isDir: type === "post",
+				type: type,
 				title: title,
 				date: date,
 				draft: draft,
 				description: desc,
 				tags: tags,
 				category: cat,
+				photos: type === "life" ? ["/life/test-a.jpg", "/life/test-b.jpg"] : [],
 				attrs: {},
-				order: ["lang"],
+				lists: {},
+				order: [],
 				body: body,
 				sha: "demo-" + slug,
 				demo: true,
 			};
-			p.attrs.lang = "";
-			p.raw = buildPostFile(p);
+			p.raw = buildFile(p);
 			return p;
 		};
 		state.posts = [
 			mk(
-				"hello-world",
-				"开始",
-				"2026-09-03",
-				false,
-				"第一篇博客，顺便演示这个主题支持的 Markdown 写法。",
-				["博客", "起步"],
-				"随笔",
-				"这是本博客的第一篇文章。\n\n## 写在前面\n\n- 单文件：`文章名.md`\n- 目录形式：`文章名/index.md`\n\n写完点右上角保存，一分钟内自动上线。",
-			),
-			mk(
+				"post",
 				"qingdao-notes",
 				"旅行随笔·青岛两天",
 				"2026-10-21",
@@ -1200,16 +1472,18 @@
 				"## 写在前面\n\n两天一夜，记录一下这座海滨城市。\n\n- 栈桥早上去人最少\n- 啤酒博物馆记得提前买票\n\n写完点右上角保存，一分钟内自动上线。",
 			),
 			mk(
+				"learning",
 				"agent-notes",
 				"用 Agent 自动整理学习笔记",
 				"2026-10-12",
 				false,
 				"让 Agent 帮我做笔记的实践记录。",
-				["Agent", "学习"],
-				"技术",
+				[],
+				"",
 				"最近在尝试把课堂笔记交给 Agent 整理。\n\n## 做法\n\n1. 拍照转文字\n2. 让 Agent 归纳要点\n3. 人工复核一遍",
 			),
 			mk(
+				"post",
 				"markdown-template",
 				"Markdown 写作速查模板",
 				"2026-09-28",
@@ -1218,6 +1492,28 @@
 				["Markdown"],
 				"技术",
 				"常用语法备忘：**加粗**、*斜体*、`代码`。",
+			),
+			mk(
+				"life",
+				"sunset-walk",
+				"海边散步",
+				"2026-09-20",
+				false,
+				"",
+				[],
+				"",
+				"傍晚去海边走了一圈，风很舒服，顺手拍了两张。",
+			),
+			mk(
+				"post",
+				"hello-world",
+				"开始",
+				"2026-09-03",
+				false,
+				"第一篇博客，顺便演示这个主题支持的 Markdown 写法。",
+				["博客", "起步"],
+				"随笔",
+				"这是本博客的第一篇文章。\n\n## 写在前面\n\n- 单文件：`文章名.md`\n- 目录形式：`文章名/index.md`\n\n写完点右上角保存，一分钟内自动上线。",
 			),
 		];
 		return { tree: [] };

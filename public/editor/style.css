@@ -29,6 +29,11 @@
 	box-sizing: border-box;
 }
 
+/* hidden 属性兜底：组件自身的 display:flex 等规则会盖过 UA 的 display:none */
+[hidden] {
+	display: none !important;
+}
+
 html,
 body {
 	margin: 0;
